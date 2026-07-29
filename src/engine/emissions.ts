@@ -1,30 +1,36 @@
 // Sea Zero — Emissions module
-// CO2 calculations for EV vs ICE, per-voyage and cumulative
+// CO2 for EV vs ICE, per-voyage and cumulative.
 
 import { SimulationResult, EmissionsResult } from './types';
-
-const EV_GRID_CO2_G_PER_KWH = 30;   // Norwegian grid intensity
-const ICE_CO2_PER_SAILING_HR = 1.6;  // tonnes CO2e per sailing hour
-const VOYAGES_PER_YEAR = 33;         // single vessel
+import {
+  GRID_CO2_G_PER_KWH,
+  ICE_CO2_TONNES_PER_MWH,
+  voyagesPerYear as voyagesPerYearFor,
+  ANALYSIS_YEARS,
+} from './constants';
 
 export function computeEmissions(simResult: SimulationResult): EmissionsResult {
-  // EV CO2
-  const evEnergyKWh = simResult.totalEnergyMWh * 1000;
-  const evCO2PerVoyageTons = (evEnergyKWh * EV_GRID_CO2_G_PER_KWH) / 1_000_000; // grams → tonnes
+  const perYear = voyagesPerYearFor(simResult.voyageMode);
+  // EV emissions follow the energy actually drawn from the grid — which
+  // includes charging losses and the pre-departure fill, not just the energy
+  // that reaches the propellers.
+  const evEnergyKWh = simResult.totalGridEnergyMWh * 1000;
+  const evCO2PerVoyageTons = (evEnergyKWh * GRID_CO2_G_PER_KWH) / 1_000_000; // grams → tonnes
 
-  // ICE CO2
-  const iceCO2PerVoyageTons = ICE_CO2_PER_SAILING_HR * simResult.totalSailingHours;
+  // ICE emissions scale with delivered energy, so they rise with speed
+  // (Exhibit 9) instead of falling with sailing hours.
+  const iceCO2PerVoyageTons = simResult.totalEnergyMWh * ICE_CO2_TONNES_PER_MWH;
 
-  const evCO2PerYear = evCO2PerVoyageTons * VOYAGES_PER_YEAR;
-  const iceCO2PerYear = iceCO2PerVoyageTons * VOYAGES_PER_YEAR;
+  const evCO2PerYear = evCO2PerVoyageTons * perYear;
+  const iceCO2PerYear = iceCO2PerVoyageTons * perYear;
 
   const co2AbatedPerVoyage = iceCO2PerVoyageTons - evCO2PerVoyageTons;
-  const co2Abated10yr = co2AbatedPerVoyage * VOYAGES_PER_YEAR * 10;
+  const co2Abated10yr = co2AbatedPerVoyage * perYear * ANALYSIS_YEARS;
 
   // Cumulative arrays for charting (year 0 to 10)
   const evCumulativeCO2: number[] = [0];
   const iceCumulativeCO2: number[] = [0];
-  for (let y = 1; y <= 10; y++) {
+  for (let y = 1; y <= ANALYSIS_YEARS; y++) {
     evCumulativeCO2.push(evCO2PerYear * y);
     iceCumulativeCO2.push(iceCO2PerYear * y);
   }

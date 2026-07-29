@@ -6,7 +6,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ReferenceLine, ResponsiveContainer, Area, ComposedChart
 } from 'recharts';
-import { TrendingDown, AlertTriangle, Clock, Plug } from 'lucide-react';
+import { TrendingDown, AlertTriangle, Clock, Plug, Fuel, Scale } from 'lucide-react';
 
 function StatTile({ label, value, unit, alert, icon }: { label: string; value: string | number; unit?: string; alert?: boolean; icon?: React.ReactNode }) {
   return (
@@ -28,39 +28,123 @@ function StatTile({ label, value, unit, alert, icon }: { label: string; value: s
   );
 }
 
+interface TooltipDatum {
+  port: string;
+  soc: number;
+}
+
+/**
+ * Declared at module scope: a component created inside render is a brand new
+ * type on every pass, so React remounts it and it loses its state.
+ */
+function SocTooltip({
+  active, payload, reserveFloor, batteryMWh,
+}: {
+  active?: boolean;
+  payload?: { payload: TooltipDatum }[];
+  reserveFloor: number;
+  batteryMWh: number;
+}) {
+  if (!active || !payload?.length) return null;
+  const data = payload[0].payload;
+  return (
+    <div className="rounded-xl px-4 py-3 text-xs" style={{
+      background: 'rgba(14, 26, 43, 0.92)',
+      border: '1px solid var(--card-border)',
+      fontFamily: 'var(--font-mono)',
+      backdropFilter: 'blur(12px)',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+    }}>
+      <p className="font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>{data.port}</p>
+      <p style={{ color: data.soc < reserveFloor ? 'var(--red)' : 'var(--cyan)' }}>
+        SoC: {data.soc.toFixed(1)} MWh ({((data.soc / batteryMWh) * 100).toFixed(0)}%)
+      </p>
+    </div>
+  );
+}
+
+function FuelTooltip({
+  active, payload,
+}: {
+  active?: boolean;
+  payload?: { payload: { port: string; fuel: number; energy: number } }[];
+}) {
+  const d = payload?.[0]?.payload;
+  if (!active || !d) return null;
+  return (
+    <div className="rounded-xl px-4 py-3 text-xs" style={{
+      background: 'rgba(14, 26, 43, 0.92)',
+      border: '1px solid var(--card-border)',
+      fontFamily: 'var(--font-mono)',
+      backdropFilter: 'blur(12px)',
+      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+    }}>
+      <p className="font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>{d.port}</p>
+      <p style={{ color: 'var(--amber)' }}>Fuel burned: {d.fuel.toFixed(1)} t MGO</p>
+      <p style={{ color: 'var(--text-secondary)' }}>Energy: {d.energy.toFixed(0)} MWh</p>
+    </div>
+  );
+}
+
 export default function OperationalCard() {
   const { simResult, config, playback, activePorts } = useSimStore();
   const reserveFloor = config.batteryMWh * (config.reservePercent / 100);
+  const isIce = config.vesselType === 'ice';
+  const energyShort = simResult.energyBalanceMWh < 0;
 
-  // Build chart data: two points per port (Arrival before charging, Departure after charging)
-  const fullChartData: { port: string; portShort: string; soc: number; index: number; belowReserve: boolean; isArr?: boolean; isDep?: boolean }[] = [
-    { port: activePorts[0]?.name ?? 'Start', portShort: (activePorts[0]?.name ?? 'STR').substring(0, 3).toUpperCase(), soc: config.batteryMWh as number, index: 0, belowReserve: false, isDep: true },
+  // Two points per call: arrival (before charging) and departure (after).
+  //
+  // Positions are keyed off `voyageIndex`, not `legIndex`. On a roundtrip the
+  // southbound half reuses the same leg indices as the northbound half, so
+  // keying by leg would give the chart duplicate keys and overlay the return
+  // journey on top of the outbound one.
+  const startName = simResult.legs[0]?.fromPortName ?? activePorts[0]?.name ?? 'Start';
+  const fullChartData: { port: string; portShort: string; soc: number; index: number; belowReserve: boolean }[] = [
+    {
+      port: `${startName} (departure)`,
+      portShort: startName.substring(0, 3).toUpperCase(),
+      soc: config.batteryMWh as number,
+      index: 0,
+      belowReserve: false,
+    },
   ];
 
   for (const leg of simResult.legs) {
     const socArr = Math.max(0, leg.socAfterSailingMWh);
     const socDep = Math.max(0, leg.socAfterPortMWh);
-    
-    // Arrival point (Lowest SoC before charging)
+    const dirMark = leg.direction === 'north' ? '▲' : '▼';
+    const dirWord = leg.direction === 'north' ? 'northbound' : 'southbound';
+    const short = leg.toPortName.substring(0, 3).toUpperCase();
+
     fullChartData.push({
-      port: leg.toPortName + ' (Arr)',
-      portShort: leg.toPortName.substring(0, 3).toUpperCase() + '↓',
+      port: `${leg.toPortName} — arrival (${dirWord})`,
+      portShort: `${short}${dirMark}↓`,
       soc: socArr,
-      index: leg.legIndex + 0.5,
+      index: leg.voyageIndex + 0.5,
       belowReserve: socArr < reserveFloor,
-      isArr: true
     });
-    
-    // Departure point (Highest SoC after charging)
+
     fullChartData.push({
-      port: leg.toPortName + ' (Dep)',
-      portShort: leg.toPortName.substring(0, 3).toUpperCase() + '↑',
+      port: `${leg.toPortName} — departure (${dirWord})`,
+      portShort: `${short}${dirMark}↑`,
       soc: socDep,
-      index: leg.legIndex + 1,
+      index: leg.voyageIndex + 1,
       belowReserve: socDep < reserveFloor,
-      isDep: true
     });
   }
+
+  // The ICE option has no battery, so a state-of-charge trace would be
+  // meaningless. Chart cumulative fuel burn against the same voyage axis.
+  const fuelChartData = [
+    { port: `${startName} (Departure)`, portShort: startName.substring(0, 3).toUpperCase(), fuel: 0, energy: 0, index: 0 },
+    ...simResult.legs.map((leg) => ({
+      port: `${leg.toPortName} (${leg.direction === 'north' ? 'northbound' : 'southbound'})`,
+      portShort: `${leg.toPortName.substring(0, 3).toUpperCase()}${leg.direction === 'north' ? '\u25b2' : '\u25bc'}`,
+      fuel: leg.cumulativeFuelTonnes,
+      energy: leg.cumulativeEnergyMWh,
+      index: leg.voyageIndex + 1,
+    })),
+  ];
 
   // Determine how many data points to show based on playback state
   const isAnimating = playback.isPlaying || (playback.hasPlayedOnce && playback.graphProgress < 1);
@@ -98,28 +182,6 @@ export default function OperationalCard() {
   const scheduleSlip = showingAnimatedStats ? visibleSlip : simResult.totalScheduleSlipMinutes;
   const gridThrottled = showingAnimatedStats ? visibleThrottled : simResult.gridThrottledPortCount;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="rounded-xl px-4 py-3 text-xs" style={{
-          background: 'rgba(14, 26, 43, 0.92)',
-          border: '1px solid var(--card-border)',
-          fontFamily: 'var(--font-mono)',
-          backdropFilter: 'blur(12px)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-        }}>
-          <p className="font-semibold text-sm mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'var(--font-display)' }}>{data.port}</p>
-          <p style={{ color: data.soc < reserveFloor ? 'var(--red)' : 'var(--cyan)' }}>
-            SoC: {data.soc.toFixed(1)} MWh ({((data.soc / config.batteryMWh) * 100).toFixed(0)}%)
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
-
   // Custom gradient-colored line via SVG defs
   const gradientId = 'socGradient';
 
@@ -133,7 +195,7 @@ export default function OperationalCard() {
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--cyan)' }} />
         <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-          Operational — State of Charge
+          {isIce ? 'Operational — Fuel & Schedule' : 'Operational — State of Charge'}
         </h3>
         {isAnimating && (
           <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide uppercase flex items-center gap-1.5" style={{
@@ -148,8 +210,48 @@ export default function OperationalCard() {
         )}
       </div>
 
-      {/* SoC Chart — taller with gradient line */}
-      <div className="w-full mb-5 min-w-0 overflow-hidden" style={{ height: 224 }}>
+      {isIce ? (
+        <div className="w-full mb-5 min-w-0 overflow-hidden" style={{ height: 224 }}>
+          <ResponsiveContainer width="100%" height={224} minWidth={0}>
+            <ComposedChart data={fuelChartData.slice(0, visibleCount)} margin={{ top: 8, right: 16, left: -5, bottom: 5 }}>
+              <defs>
+                <linearGradient id="fuelAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--amber)" stopOpacity={0.18} />
+                  <stop offset="100%" stopColor="var(--amber)" stopOpacity={0.01} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.06)" />
+              <XAxis
+                dataKey="portShort"
+                tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                interval="preserveStartEnd"
+                minTickGap={18}
+                axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
+                tickLine={false}
+              />
+              <YAxis
+                tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
+                tickLine={false}
+                unit=" t"
+              />
+              <Tooltip content={<FuelTooltip />} />
+              <Area
+                type="monotone"
+                dataKey="fuel"
+                fill="url(#fuelAreaGrad)"
+                stroke="var(--amber)"
+                strokeWidth={2.5}
+                dot={false}
+                isAnimationActive={isAnimating}
+                animationDuration={400}
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        /* SoC chart — arrival and departure state of charge at every call */
+        <div className="w-full mb-5 min-w-0 overflow-hidden" style={{ height: 224 }}>
         <ResponsiveContainer width="100%" height={224} minWidth={0}>
           <ComposedChart data={chartData} margin={{ top: 8, right: 16, left: -5, bottom: 5 }}>
             <defs>
@@ -168,7 +270,8 @@ export default function OperationalCard() {
             <XAxis
               dataKey="portShort"
               tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
-              interval="equidistantPreserveStart"
+              interval="preserveStartEnd"
+              minTickGap={18}
               axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
               tickLine={false}
             />
@@ -179,7 +282,7 @@ export default function OperationalCard() {
               domain={[0, (config.batteryMWh as number) + 5]}
               unit=" MWh"
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<SocTooltip reserveFloor={reserveFloor} batteryMWh={config.batteryMWh} />} />
             <ReferenceLine
               y={reserveFloor}
               stroke="var(--red)"
@@ -204,8 +307,10 @@ export default function OperationalCard() {
               strokeWidth={3}
               isAnimationActive={isAnimating}
               animationDuration={400}
-              dot={(props: any) => {
-                const { cx, cy, payload } = props;
+              dot={(props: unknown) => {
+                const { cx, cy, payload } = props as {
+                  cx: number; cy: number; payload: { soc: number; index: number };
+                };
                 const below = payload.soc < reserveFloor;
                 const isLastPoint = isAnimating && payload.index === chartData[chartData.length - 1]?.index;
                 return (
@@ -234,36 +339,87 @@ export default function OperationalCard() {
           </ComposedChart>
         </ResponsiveContainer>
       </div>
+      )}
 
       {/* Stat tiles — update progressively during playback */}
       <div className="grid grid-cols-4 gap-3">
-        <StatTile
-          icon={<TrendingDown size={16} />}
-          label="Worst Margin"
-          value={worstMargin === Infinity || worstMargin === 100 && isAnimating ? '—' : worstMargin.toFixed(1)}
-          unit="%"
-          alert={worstMargin < 0}
-        />
-        <StatTile
-          icon={<AlertTriangle size={16} />}
-          label="Dead Zones"
-          value={deadZones}
-          alert={deadZones > 0}
-        />
-        <StatTile
-          icon={<Clock size={16} />}
-          label="Schedule Slip"
-          value={Math.round(scheduleSlip)}
-          unit="min"
-          alert={scheduleSlip > 30}
-        />
-        <StatTile
-          icon={<Plug size={16} />}
-          label="Grid Throttled"
-          value={gridThrottled}
-          alert={gridThrottled > 3}
-        />
+        {isIce ? (
+          <>
+            <StatTile icon={<Fuel size={16} />} label="MGO Burned" value={simResult.totalFuelTonnes.toFixed(1)} unit="t" />
+            <StatTile icon={<Scale size={16} />} label="Energy" value={simResult.totalEnergyMWh.toFixed(0)} unit="MWh" />
+            <StatTile
+              icon={<Clock size={16} />}
+              label="Vs Timetable"
+              value={`${simResult.scheduleDeviationHours >= 0 ? '+' : ''}${simResult.scheduleDeviationHours.toFixed(1)}`}
+              unit="h"
+              alert={!simResult.onSchedule}
+            />
+            <StatTile icon={<TrendingDown size={16} />} label="Sailing" value={simResult.totalSailingHours.toFixed(0)} unit="h" />
+          </>
+        ) : (
+          <>
+            <StatTile
+              icon={<TrendingDown size={16} />}
+              label="Worst Margin"
+              value={!Number.isFinite(worstMargin) || (worstMargin === 100 && isAnimating) ? '—' : worstMargin.toFixed(1)}
+              unit="%"
+              alert={worstMargin < 0}
+            />
+            <StatTile
+              icon={<AlertTriangle size={16} />}
+              label="Dead Zones"
+              value={deadZones}
+              alert={deadZones > 0}
+            />
+            <StatTile
+              icon={<Clock size={16} />}
+              label="Vs Timetable"
+              value={`${simResult.scheduleDeviationHours >= 0 ? '+' : ''}${simResult.scheduleDeviationHours.toFixed(1)}`}
+              unit="h"
+              alert={!simResult.onSchedule}
+            />
+            <StatTile
+              icon={<Plug size={16} />}
+              label="Grid Throttled"
+              value={gridThrottled}
+              alert={gridThrottled > 3}
+            />
+          </>
+        )}
       </div>
+
+      {/* Energy balance — the check no amount of charger reshuffling can pass */}
+      {!isIce && (
+        <div
+          className="mt-3 rounded-xl px-4 py-3"
+          style={{
+            background: energyShort ? 'var(--red-dim)' : 'var(--glass-strong)',
+            border: `1px solid ${energyShort ? 'rgba(239,68,68,0.15)' : 'var(--card-border)'}`,
+          }}
+        >
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+              Energy Balance
+            </span>
+            <span className="text-[11px] font-bold" style={{ fontFamily: 'var(--font-mono)', color: energyShort ? 'var(--red)' : 'var(--green)' }}>
+              {energyShort ? '' : '+'}{simResult.energyBalanceMWh.toFixed(0)} MWh
+            </span>
+          </div>
+          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}>
+            The timetable leaves <strong>{simResult.chargingWindowHours.toFixed(1)} h</strong> plugged in across{' '}
+            {simResult.chargingPortCount} charger{simResult.chargingPortCount === 1 ? '' : 's'} — at{' '}
+            {config.chargePowerMW} MW that is at most{' '}
+            <strong>{simResult.chargingCapacityMWh.toFixed(0)} MWh</strong>, against{' '}
+            <strong>{simResult.totalGridEnergyMWh.toFixed(0)} MWh</strong> of demand.
+            {energyShort
+              ? ' Moving chargers around cannot close this — the dwell times, the connector rating or the ship have to change.'
+              : ' Enough in aggregate; the remaining question is whether it arrives where it is needed.'}
+            {scheduleSlip > 1 && (
+              <> Holding the reserve at every port would need <strong>{Math.round(scheduleSlip)} extra minutes</strong> of dwell in total.</>
+            )}
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 }

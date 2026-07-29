@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, X, Flag, Plus } from 'lucide-react';
-import { Team, loadTeams, addTeam, deleteTeam } from '@/store/persistence';
+import { addTeam, deleteTeam } from '@/store/persistence';
+import { useTeams } from '@/store/useLocalCollections';
 
 const TEAM_COLORS = [
   '#38D9C8', '#4A90CC', '#F59E0B', '#EF4444', '#8B5CF6',
@@ -11,30 +12,25 @@ const TEAM_COLORS = [
 ];
 
 export default function TeamManager() {
-  const [teams, setTeams] = useState<Team[]>([]);
+  // Teams live in localStorage; the hook keeps this in sync across tabs.
+  const teams = useTeams();
   const [newName, setNewName] = useState('');
   const [selectedColor, setSelectedColor] = useState(TEAM_COLORS[0]);
   const [showForm, setShowForm] = useState(false);
 
-  useEffect(() => {
-    setTeams(loadTeams());
-  }, []);
-
   const handleAdd = () => {
-    if (!newName.trim()) return;
-    const team = addTeam(newName.trim(), selectedColor);
-    setTeams((prev) => [...prev, team]);
+    const name = newName.trim();
+    if (!name) return;
+    addTeam(name, selectedColor);
     setNewName('');
     setShowForm(false);
-    // Cycle to next unused color
-    const usedColors = new Set(teams.map((t) => t.color));
-    const nextColor = TEAM_COLORS.find((c) => !usedColors.has(c)) || TEAM_COLORS[0];
-    setSelectedColor(nextColor);
+    // Cycle to the next unused colour.
+    const usedColors = new Set([...teams.map((t) => t.color), selectedColor]);
+    setSelectedColor(TEAM_COLORS.find((c) => !usedColors.has(c)) || TEAM_COLORS[0]);
   };
 
   const handleDelete = (teamId: string) => {
     deleteTeam(teamId);
-    setTeams((prev) => prev.filter((t) => t.id !== teamId));
   };
 
   return (
@@ -89,7 +85,8 @@ export default function TeamManager() {
                 <input
                   type="text"
                   value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
+                  onChange={(e) => setNewName(e.target.value.slice(0, 40))}
+                  maxLength={40}
                   onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
                   placeholder="e.g., Nordic Titans"
                   className="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all"

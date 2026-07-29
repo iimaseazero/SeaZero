@@ -5,13 +5,14 @@
 import { create } from 'zustand';
 import { PORTS as DEFAULT_PORTS, Port } from '@/data/ports';
 import { LEGS as DEFAULT_LEGS, Leg } from '@/data/legs';
-import { SimulationConfig, PortConfig, SimulationResult, EconomicsResult } from '@/engine/types';
+import { SimulationConfig, SimulationResult, EconomicsResult } from '@/engine/types';
 import { EmissionsResult } from '@/engine/types';
 import { simulate } from '@/engine/simulate';
 import { computeEconomics } from '@/engine/economics';
 import { computeEmissions } from '@/engine/emissions';
 import { DEFAULT_CONFIG, PRESETS, generatePresetsForRoute, Preset } from '@/data/presets';
 import { GridTier } from '@/data/ports';
+import { VoyageMode } from '@/engine/voyage';
 import { saveCustomRoute, loadCustomRoute, clearCustomRoute, CustomRoute } from '@/store/persistence';
 
 interface PlaybackState {
@@ -45,6 +46,7 @@ interface SimStore {
 
   // Actions
   setVesselType: (type: 'ev' | 'ice') => void;
+  setVoyageMode: (mode: VoyageMode) => void;
   setBatteryMWh: (mwh: 50 | 70) => void;
   setSpeedKnots: (kn: number) => void;
   setCargoLoad: (pct: number) => void;
@@ -58,6 +60,9 @@ interface SimStore {
   setSeaMarginPercent: (pct: number) => void;
   setConnectionOverheadMinutes: (min: number) => void;
   setBatteryEfficiency: (eff: number) => void;
+  setCarbonPrice: (usdPerTon: number) => void;
+  setScheduleTolerance: (hours: number) => void;
+  setChargePower: (mw: number) => void;
   applyPreset: (presetId: string) => void;
 
   // Route management
@@ -80,15 +85,6 @@ function recompute(config: SimulationConfig, ports: Port[], legs: Leg[]) {
   const economics = computeEconomics(config, simResult);
   const emissions = computeEmissions(simResult);
   return { simResult, economics, emissions };
-}
-
-function makeDefaultPortConfigs(ports: Port[]): PortConfig[] {
-  return ports.map((port) => ({
-    portId: port.id,
-    hasCharger: false,
-    hasBufferBattery: false,
-    gridTier: port.gridTier,
-  }));
 }
 
 const initialResults = recompute(DEFAULT_CONFIG, DEFAULT_PORTS, DEFAULT_LEGS);
@@ -116,6 +112,13 @@ export const useSimStore = create<SimStore>((set, get) => ({
   setVesselType: (type) => {
     set((s) => {
       const config = { ...s.config, vesselType: type };
+      return { config, ...recompute(config, s.activePorts, s.activeLegs) };
+    });
+  },
+
+  setVoyageMode: (mode) => {
+    set((s) => {
+      const config = { ...s.config, voyageMode: mode };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
     });
   },
@@ -179,6 +182,27 @@ export const useSimStore = create<SimStore>((set, get) => ({
   setBatteryEfficiency: (eff) => {
     set((s) => {
       const config = { ...s.config, batteryEfficiency: eff };
+      return { config, ...recompute(config, s.activePorts, s.activeLegs) };
+    });
+  },
+
+  setCarbonPrice: (usdPerTon) => {
+    set((s) => {
+      const config = { ...s.config, carbonPricePerTon: usdPerTon };
+      return { config, ...recompute(config, s.activePorts, s.activeLegs) };
+    });
+  },
+
+  setScheduleTolerance: (hours) => {
+    set((s) => {
+      const config = { ...s.config, scheduleToleranceHours: hours };
+      return { config, ...recompute(config, s.activePorts, s.activeLegs) };
+    });
+  },
+
+  setChargePower: (mw) => {
+    set((s) => {
+      const config = { ...s.config, chargePowerMW: mw };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
     });
   },

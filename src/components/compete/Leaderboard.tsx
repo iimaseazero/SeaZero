@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy } from 'lucide-react';
-import { Submission, getLeaderboard } from '@/store/persistence';
+import { useLeaderboard } from '@/store/useLocalCollections';
 
 function formatM(val: number): string {
   if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
@@ -12,15 +11,9 @@ function formatM(val: number): string {
 }
 
 export default function Leaderboard() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-
-  // Reload leaderboard periodically
-  useEffect(() => {
-    const load = () => setSubmissions(getLeaderboard());
-    load();
-    const interval = setInterval(load, 3000);
-    return () => clearInterval(interval);
-  }, []);
+  // Subscribes to the submission store — updates immediately on submit and on
+  // writes from other tabs, with no polling.
+  const submissions = useLeaderboard();
 
   if (submissions.length === 0) {
     return (

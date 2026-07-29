@@ -1,18 +1,27 @@
 // Sea Zero — Scenario presets
-// Generates presets dynamically based on active port list
+// Generates presets dynamically based on the active port list.
 
 import { PORTS as DEFAULT_PORTS, Port } from '@/data/ports';
 import { SimulationConfig, PortConfig } from '@/engine/types';
+import {
+  REF_SPEED_KNOTS,
+  DEFAULT_CARBON_PRICE_PER_TON,
+  DEFAULT_SCHEDULE_TOLERANCE_HOURS,
+  DESIGN_CHARGE_POWER_MW,
+  DEFAULT_CUBE_EXPONENT,
+} from '@/engine/constants';
 
 function makePortConfigs(
   ports: Port[],
   chargerPortIds: number[],
-  bufferPortIds: number[] = []
+  bufferPortIds: number[] = [],
 ): PortConfig[] {
+  const chargers = new Set(chargerPortIds);
+  const buffers = new Set(bufferPortIds);
   return ports.map((port) => ({
     portId: port.id,
-    hasCharger: chargerPortIds.includes(port.id),
-    hasBufferBattery: bufferPortIds.includes(port.id),
+    hasCharger: chargers.has(port.id),
+    hasBufferBattery: buffers.has(port.id),
     gridTier: port.gridTier,
   }));
 }
@@ -26,48 +35,58 @@ export interface Preset {
 
 const BASE_CONFIG: Omit<SimulationConfig, 'portConfigs'> = {
   vesselType: 'ev',
+  // The service Hurtigruten actually runs is Bergen -> Kirkenes -> Bergen.
+  voyageMode: 'roundtrip',
   batteryMWh: 70,
-  speedKnots: 13.2,
+  speedKnots: REF_SPEED_KNOTS,
   cargoLoadPercent: 70,
-  efficiencyPackage: false,
+  efficiencyPackage: true, // the case's 2 MW / 0.6 MW design point assumes it
   reservePercent: 15,
-  cubeExponent: 3.0,
+  cubeExponent: DEFAULT_CUBE_EXPONENT,
   discountRate: 0.08,
   seaMarginPercent: 15,
   connectionOverheadMinutes: 10,
   batteryEfficiency: 0.92,
+  carbonPricePerTon: DEFAULT_CARBON_PRICE_PER_TON,
+  scheduleToleranceHours: DEFAULT_SCHEDULE_TOLERANCE_HOURS,
+  chargePowerMW: DESIGN_CHARGE_POWER_MW,
 };
 
 /**
- * Generate presets dynamically for any set of ports.
- * Adapts the charging strategy based on available grid tiers.
+ * Build the four scenarios for an arbitrary ordered port list.
+ *
+ * The origin always gets a charger — the ship has to be filled somewhere
+ * before it departs, and the simulator charges for that energy.
  */
 export function generatePresetsForRoute(ports: Port[]): Preset[] {
-  // Categorize ports by grid tier
+  if (ports.length === 0) {
+    return [{
+      id: 'empty',
+      name: 'No Route',
+      description: 'Upload a route to begin',
+      config: { ...BASE_CONFIG, portConfigs: [] },
+    }];
+  }
+
+  const originId = ports[0].id;
+  const terminusId = ports[ports.length - 1].id;
+
   const strongPorts = ports.filter((p) => p.gridTier === 'strong').map((p) => p.id);
-  const mediumPorts = ports.filter((p) => p.gridTier === 'medium').map((p) => p.id);
-  const weakPorts = ports.filter((p) => p.gridTier === 'weak').map((p) => p.id);
 
-  // Always include first and last port in hub chargers
-  const hubIds = new Set(strongPorts);
-  if (ports.length > 0) hubIds.add(ports[0].id);
-  if (ports.length > 1) hubIds.add(ports[ports.length - 1].id);
-  const hubs = Array.from(hubIds);
+  // Hubs: every strong-grid port, plus both ends of the route.
+  const hubs = Array.from(new Set([originId, terminusId, ...strongPorts]));
 
-  // Dense: all strong + medium
-  const denseChargers = [...hubs, ...mediumPorts.filter((id) => !hubIds.has(id))];
+  // Every port, with buffer batteries anywhere the local grid cannot sustain
+  // the full connector rating on its own.
+  const allIds = ports.map((p) => p.id);
+  const nonStrongIds = ports.filter((p) => p.gridTier !== 'strong').map((p) => p.id);
 
-  // Identify weak ports in the second half of the route for buffer batteries
-  const halfwayIndex = Math.floor(ports.length / 2);
-  const weakSecondHalf = ports
-    .filter((p, i) => i >= halfwayIndex && p.gridTier === 'weak')
-    .map((p) => p.id);
-
-  const presets: Preset[] = [
+  return [
     {
-      id: 'sparse-big',
-      name: 'Sparse & Big',
-      description: `70 MWh battery, ${hubs.length} hub chargers only`,
+      id: 'case-design',
+      name: 'Case Design',
+      description:
+        `70 MWh battery, ${hubs.length} hub chargers at ${DESIGN_CHARGE_POWER_MW} MW — Hurtigruten's starting point as of Nov 2024`,
       config: {
         ...BASE_CONFIG,
         batteryMWh: 70,
@@ -75,107 +94,56 @@ export function generatePresetsForRoute(ports: Port[]): Preset[] {
       },
     },
     {
-      id: 'dense-small',
-      name: 'Dense & Small',
-      description: `50 MWh battery, ${denseChargers.length} chargers (strong + medium)`,
+      id: 'dense-network',
+      name: 'Dense Network',
+      description:
+        `70 MWh, chargers at all ${allIds.length} ports with buffer batteries off the strong grid — the most the ${DESIGN_CHARGE_POWER_MW} MW design can do`,
       config: {
         ...BASE_CONFIG,
-        batteryMWh: 50,
-        portConfigs: makePortConfigs(ports, denseChargers),
+        batteryMWh: 70,
+        portConfigs: makePortConfigs(ports, allIds, nonStrongIds),
       },
     },
     {
-      id: 'buffered-north',
-      name: 'Buffered Extended',
-      description: `50 MWh, dense chargers + buffers on weak-grid ports`,
+      id: 'grid-upgrade',
+      name: 'Grid Upgrade',
+      description:
+        '70 MWh, 16 MW connectors and 2-minute automated hookup at every port — the cheapest configuration that actually completes the voyage',
       config: {
         ...BASE_CONFIG,
-        batteryMWh: 50,
-        efficiencyPackage: true,
-        portConfigs: makePortConfigs(
-          ports,
-          [...denseChargers, ...weakSecondHalf],
-          weakSecondHalf
-        ),
+        batteryMWh: 70,
+        chargePowerMW: 16,
+        connectionOverheadMinutes: 2,
+        portConfigs: makePortConfigs(ports, allIds, nonStrongIds),
       },
     },
     {
       id: 'ice-benchmark',
       name: 'ICE Benchmark',
-      description: 'Conventional diesel vessel for comparison',
+      description: 'Efficiency-upgraded conventional vessel — the lower-risk bid',
       config: {
         ...BASE_CONFIG,
         vesselType: 'ice',
-        portConfigs: makePortConfigs(ports, []),
+        batteryMWh: 70,
+        chargePowerMW: 16,
+        connectionOverheadMinutes: 2,
+        // Same charging network as "Grid Upgrade" so the EV column of the
+        // comparison describes the EV Hurtigruten would actually build, rather
+        // than a hypothetical EV with nowhere to plug in.
+        portConfigs: makePortConfigs(ports, allIds, nonStrongIds),
       },
     },
   ];
-
-  return presets;
 }
 
-// ─── Default Hurtigruten Presets ───
+// ─── Default Hurtigruten presets (Bergen → Kirkenes) ───
 
-// Strong-grid hub port IDs
-const STRONG_HUBS = [0, 7, 13, 21, 33]; // Bergen, Trondheim, Bodø, Tromsø, Kirkenes
+export const PRESETS: Preset[] = generatePresetsForRoute(DEFAULT_PORTS);
 
-// Medium-grid ports
-const MEDIUM_PORTS = [4, 6, 19, 24, 26, 15, 10]; // Ålesund, Kristiansund, Harstad, Hammerfest, Honningsvåg, Svolvær, Sandnessjøen
-
-// All strong + medium
-const DENSE_CHARGERS = [...STRONG_HUBS, ...MEDIUM_PORTS];
-
-// Weak-grid ports north of Bodø (id >= 14, excluding strong/medium)
-const WEAK_NORTH_PORTS = DEFAULT_PORTS
-  .filter((p) => p.id >= 14 && p.gridTier === 'weak')
-  .map((p) => p.id);
-
-export const PRESETS: Preset[] = [
-  {
-    id: 'sparse-big',
-    name: 'Sparse & Big',
-    description: '70 MWh battery, 5 hub chargers only',
-    config: {
-      ...BASE_CONFIG,
-      batteryMWh: 70,
-      portConfigs: makePortConfigs(DEFAULT_PORTS, STRONG_HUBS),
-    },
-  },
-  {
-    id: 'dense-small',
-    name: 'Dense & Small',
-    description: '50 MWh battery, ~12 chargers (all strong + medium)',
-    config: {
-      ...BASE_CONFIG,
-      batteryMWh: 50,
-      portConfigs: makePortConfigs(DEFAULT_PORTS, DENSE_CHARGERS),
-    },
-  },
-  {
-    id: 'buffered-north',
-    name: 'Buffered North',
-    description: '50 MWh, dense chargers + buffers on weak-grid northern ports',
-    config: {
-      ...BASE_CONFIG,
-      batteryMWh: 50,
-      efficiencyPackage: true,
-      portConfigs: makePortConfigs(
-        DEFAULT_PORTS,
-        [...DENSE_CHARGERS, ...WEAK_NORTH_PORTS],
-        WEAK_NORTH_PORTS
-      ),
-    },
-  },
-  {
-    id: 'ice-benchmark',
-    name: 'ICE Benchmark',
-    description: 'Conventional diesel vessel for comparison',
-    config: {
-      ...BASE_CONFIG,
-      vesselType: 'ice',
-      portConfigs: makePortConfigs(DEFAULT_PORTS, []),
-    },
-  },
-];
-
-export const DEFAULT_CONFIG: SimulationConfig = PRESETS[0].config;
+/**
+ * Landing configuration. "Grid Upgrade" is the only preset that completes the
+ * voyage, so the app opens on a working baseline the user can then degrade
+ * back toward the case's own numbers to see where they stop closing.
+ */
+export const DEFAULT_CONFIG: SimulationConfig =
+  PRESETS.find((p) => p.id === 'grid-upgrade')?.config ?? PRESETS[0].config;

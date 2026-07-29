@@ -6,23 +6,27 @@ import { RotateCcw } from 'lucide-react';
 const SPEED_OPTIONS = [1, 2, 4, 8];
 
 export default function PlaybackBar() {
-  const { playback, setPlaybackState, setPlaying, setPlaybackSpeed, simResult, activePorts, activeLegs } = useSimStore();
+  const { playback, setPlaybackState, setPlaying, setPlaybackSpeed, simResult, activePorts } = useSimStore();
 
-  const totalLegs = activeLegs.length;
-  const overallProgress = (playback.currentLegIndex + playback.legProgress) / totalLegs;
+  // Use the simulated voyage, not the tabulated route — a roundtrip is twice
+  // as long, and the scrubber has to span all of it.
+  const voyageLegs = simResult.legs;
+  const totalLegs = voyageLegs.length;
+  // An empty route would make every ratio below NaN.
+  const isRoundtrip = simResult.voyageMode === 'roundtrip';
+  const overallProgress = totalLegs > 0
+    ? Math.min(1, Math.max(0, (playback.currentLegIndex + playback.legProgress) / totalLegs))
+    : 0;
 
   // Compute voyage clock
   const getVoyageClock = () => {
     let totalHours = 0;
     for (let i = 0; i < playback.currentLegIndex; i++) {
-      const leg = simResult.legs[i];
-      if (leg) {
-        totalHours += leg.sailTimeHours;
-        totalHours += leg.dwellMinutes / 60;
-      }
+      const leg = voyageLegs[i];
+      if (leg) totalHours += leg.sailTimeHours + leg.dwellMinutes / 60;
     }
-    if (playback.currentLegIndex < simResult.legs.length) {
-      totalHours += simResult.legs[playback.currentLegIndex].sailTimeHours * playback.legProgress;
+    if (playback.currentLegIndex < voyageLegs.length) {
+      totalHours += voyageLegs[playback.currentLegIndex].sailTimeHours * playback.legProgress;
     }
     const days = Math.floor(totalHours / 24) + 1;
     const hoursInDay = totalHours % 24;
@@ -31,19 +35,26 @@ export default function PlaybackBar() {
     return `Day ${days} · ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   };
 
-  const currentLegName = playback.currentLegIndex < activeLegs.length
-    ? `${activePorts[activeLegs[playback.currentLegIndex].fromPortId].name} → ${activePorts[activeLegs[playback.currentLegIndex].toPortId].name}`
+  const currentLeg = voyageLegs[playback.currentLegIndex];
+  const currentLegName = currentLeg
+    ? `${currentLeg.fromPortName} → ${currentLeg.toPortName}`
     : 'Voyage Complete';
+  const directionLabel = currentLeg
+    ? currentLeg.direction === 'north' ? 'Northbound' : 'Southbound'
+    : '';
 
   const handleScrub = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (totalLegs === 0) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const pct = x / rect.width;
+    if (rect.width === 0) return;
+    const pct = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
     const legFloat = pct * totalLegs;
-    const legIndex = Math.min(Math.floor(legFloat), totalLegs - 1);
-    const progress = legFloat - legIndex;
-    const graphProgress = pct;
-    setPlaybackState({ currentLegIndex: legIndex, legProgress: progress, graphProgress });
+    const legIndex = Math.min(Math.max(0, Math.floor(legFloat)), totalLegs - 1);
+    setPlaybackState({
+      currentLegIndex: legIndex,
+      legProgress: legFloat - legIndex,
+      graphProgress: pct,
+    });
   };
 
   const handlePlayPause = () => {
@@ -52,7 +63,7 @@ export default function PlaybackBar() {
       setPlaying(false);
     } else {
       // Play or restart
-      const isAtEnd = playback.currentLegIndex >= activeLegs.length - 1 && playback.legProgress >= 1;
+      const isAtEnd = playback.currentLegIndex >= totalLegs - 1 && playback.legProgress >= 1;
       if (isAtEnd) {
         // Restart from beginning
         setPlaybackState({
@@ -148,8 +159,20 @@ export default function PlaybackBar() {
           {getVoyageClock()}
         </span>
 
-        <span className="text-xs flex-1 text-right truncate font-medium" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-          {currentLegName}
+        <span className="text-xs flex-1 text-right truncate font-medium flex items-center justify-end gap-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+          {directionLabel && (
+            <span
+              className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0"
+              style={{
+                fontFamily: 'var(--font-mono)',
+                color: currentLeg?.direction === 'north' ? 'var(--cyan)' : 'var(--amber)',
+                background: currentLeg?.direction === 'north' ? 'rgba(56,217,200,0.08)' : 'rgba(245,158,11,0.08)',
+              }}
+            >
+              {directionLabel}
+            </span>
+          )}
+          <span className="truncate">{currentLegName}</span>
         </span>
       </div>
 
@@ -181,8 +204,17 @@ export default function PlaybackBar() {
 
       {/* Leg markers */}
       <div className="flex justify-between mt-1.5">
-        <span className="text-[10px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>{activePorts[0]?.name ?? 'Start'}</span>
-        <span className="text-[10px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>{activePorts[activePorts.length - 1]?.name ?? 'End'}</span>
+        <span className="text-[10px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+          {voyageLegs[0]?.fromPortName ?? activePorts[0]?.name ?? 'Start'}
+        </span>
+        {isRoundtrip && (
+          <span className="text-[10px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--amber)' }}>
+            {activePorts[activePorts.length - 1]?.name ?? 'Turn'} ↻
+          </span>
+        )}
+        <span className="text-[10px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+          {voyageLegs[voyageLegs.length - 1]?.toPortName ?? activePorts[activePorts.length - 1]?.name ?? 'End'}
+        </span>
       </div>
     </div>
   );

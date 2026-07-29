@@ -49,8 +49,9 @@ function IssuesBadge() {
 }
 
 export default function Home() {
-  const { routeName, activePorts, simResult } = useSimStore();
+  const { routeName, simResult } = useSimStore();
   const totalDistance = Math.round(simResult.totalDistanceKm);
+  const isRoundtrip = simResult.voyageMode === 'roundtrip';
 
   return (
     <main className="h-screen flex flex-col overflow-hidden relative">
@@ -92,7 +93,7 @@ export default function Home() {
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-3 px-3 py-1.5 rounded-lg" style={{ background: 'var(--glass-strong)', border: '1px solid var(--border)' }}>
             <span className="text-[11px] font-medium tracking-wide" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-              {routeName}
+              {routeName}{isRoundtrip ? ' \u21c4' : ''}
             </span>
             <span className="w-px h-3" style={{ background: 'var(--border)' }} />
             <span className="text-[11px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
@@ -100,7 +101,7 @@ export default function Home() {
             </span>
             <span className="w-px h-3" style={{ background: 'var(--border)' }} />
             <span className="text-[11px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-              {activePorts.length} ports
+              {simResult.portCallCount} calls
             </span>
           </div>
           <IssuesBadge />

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AlertTriangle, ChevronDown, Check } from 'lucide-react';
-import { Team, loadTeams } from '@/store/persistence';
+import { Team } from '@/store/persistence';
+import { useTeams } from '@/store/useLocalCollections';
 
 interface TeamSelectorProps {
   selectedTeam: Team | null;
@@ -10,12 +11,8 @@ interface TeamSelectorProps {
 }
 
 export default function TeamSelector({ selectedTeam, onSelect }: TeamSelectorProps) {
-  const [teams, setTeams] = useState<Team[]>([]);
+  const teams = useTeams();
   const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    setTeams(loadTeams());
-  }, []);
 
   if (teams.length === 0) {
     return (

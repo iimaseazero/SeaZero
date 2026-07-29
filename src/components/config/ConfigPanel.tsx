@@ -2,13 +2,15 @@
 
 import { useSimStore } from '@/store/useSimStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { Zap, Flame, Battery, Navigation, Maximize2, MoveVertical } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { Zap, Flame, Battery, Plug, Maximize2, Network, ArrowRight, Repeat } from 'lucide-react';
+import { MIN_CUBE_EXPONENT, MAX_CUBE_EXPONENT } from '@/engine/constants';
 
-const PRESET_ICONS: Record<string, any> = {
-  'sparse-big': Maximize2,
-  'dense-small': MoveVertical,
-  'buffered-north': Navigation,
+const PRESET_ICONS: Record<string, LucideIcon> = {
+  'case-design': Maximize2,
+  'dense-network': Network,
+  'grid-upgrade': Plug,
   'ice-benchmark': Flame,
 };
 
@@ -51,6 +53,13 @@ export default function ConfigPanel() {
   const store = useSimStore();
   const { config, activePorts, activePresets } = store;
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  // Port ids are not guaranteed to equal array positions once a custom route
+  // has been uploaded, so look configs up by id rather than indexing.
+  const configByPortId = useMemo(
+    () => new Map(config.portConfigs.map((pc) => [pc.portId, pc])),
+    [config.portConfigs],
+  );
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
@@ -103,6 +112,42 @@ export default function ConfigPanel() {
           </div>
         </div>
 
+        {/* ─── Voyage Mode ─── */}
+        <div>
+          <label className="text-[11px] uppercase tracking-wider mb-2.5 block font-medium" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+            Voyage
+          </label>
+          <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
+            {([
+              { mode: 'one-way' as const, label: 'One-Way', Icon: ArrowRight },
+              { mode: 'roundtrip' as const, label: 'Roundtrip', Icon: Repeat },
+            ]).map(({ mode, label, Icon }, i) => {
+              const isActive = config.voyageMode === mode;
+              return (
+                <button
+                  key={mode}
+                  onClick={() => store.setVoyageMode(mode)}
+                  className="flex-1 px-3 py-2 text-xs uppercase font-semibold transition-all flex items-center justify-center gap-1.5"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    backgroundColor: isActive ? 'rgba(56, 217, 200, 0.12)' : 'transparent',
+                    color: isActive ? 'var(--cyan)' : 'var(--text-muted)',
+                    borderRight: i === 0 ? '1px solid var(--card-border)' : 'none',
+                  }}
+                >
+                  <Icon size={13} />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+            {config.voyageMode === 'roundtrip'
+              ? 'Bergen \u2192 Kirkenes \u2192 Bergen \u2014 67 port calls, the service Hurtigruten actually runs.'
+              : 'Bergen \u2192 Kirkenes only \u2014 the 34 calls tabulated in Exhibit 2.'}
+          </p>
+        </div>
+
         {/* ─── Vessel Type Toggle ─── */}
         <div>
           <label className="text-[11px] uppercase tracking-wider mb-2.5 block font-medium" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
@@ -137,6 +182,47 @@ export default function ConfigPanel() {
             })}
           </div>
         </div>
+
+        {/* ─── Vessel operating point (drives both EV energy and ICE fuel) ─── */}
+        {config.vesselType === 'ice' && (
+          <>
+            <SliderControl
+              label="Sailing Speed"
+              value={config.speedKnots}
+              displayValue={`${config.speedKnots.toFixed(1)} kn`}
+              min={10} max={16} step={0.1}
+              onChange={(v) => store.setSpeedKnots(v)}
+            />
+            <SliderControl
+              label="Cargo Load"
+              value={config.cargoLoadPercent}
+              displayValue={`${config.cargoLoadPercent}%`}
+              min={0} max={100} step={5}
+              onChange={(v) => store.setCargoLoad(v)}
+            />
+            <div className="flex items-center justify-between py-1">
+              <label className="text-[11px] uppercase tracking-wider font-medium" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+                Efficiency Package
+              </label>
+              <button
+                onClick={() => store.setEfficiencyPackage(!config.efficiencyPackage)}
+                className="w-11 h-6 rounded-full relative transition-all"
+                style={{
+                  backgroundColor: config.efficiencyPackage ? 'rgba(56, 217, 200, 0.3)' : 'var(--navy-medium)',
+                  border: `1px solid ${config.efficiencyPackage ? 'rgba(56, 217, 200, 0.3)' : 'var(--card-border)'}`,
+                }}
+              >
+                <div
+                  className="w-4 h-4 rounded-full absolute top-0.5 transition-all"
+                  style={{
+                    left: config.efficiencyPackage ? '24px' : '2px',
+                    backgroundColor: config.efficiencyPackage ? 'var(--cyan)' : 'var(--text-muted)',
+                  }}
+                />
+              </button>
+            </div>
+          </>
+        )}
 
         {/* ─── EV Controls ─── */}
         {config.vesselType === 'ev' && (
@@ -231,7 +317,7 @@ export default function ConfigPanel() {
                 background: 'var(--glass)',
               }}>
                 {activePorts.map((port) => {
-                  const pc = config.portConfigs[port.id];
+                  const pc = configByPortId.get(port.id);
                   if (!pc) return null;
                   return (
                     <div
@@ -306,12 +392,15 @@ export default function ConfigPanel() {
                 className="overflow-hidden mt-3 space-y-4"
               >
                 <SliderControl
-                  label="Cube Exponent (n)"
+                  label="Speed Exponent (n)"
                   value={config.cubeExponent}
                   displayValue={config.cubeExponent.toFixed(2)}
-                  min={2.7} max={3.0} step={0.01}
+                  min={MIN_CUBE_EXPONENT} max={MAX_CUBE_EXPONENT} step={0.05}
                   onChange={(v) => store.setCubeExponent(v)}
                 />
+                <p className="text-[10px] -mt-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+                  P &prop; v&#8319;. Default 3.45 is the least-squares fit to Exhibit 9; textbook cube law is 3.0. No effect at 13.2 kn.
+                </p>
 
                 <SliderControl
                   label="Discount Rate"
@@ -352,6 +441,49 @@ export default function ConfigPanel() {
                   min={0.85} max={1.0} step={0.01}
                   onChange={(v) => store.setBatteryEfficiency(v)}
                 />
+
+                <SliderControl
+                  label="Charger Rating"
+                  value={config.chargePowerMW}
+                  displayValue={`${config.chargePowerMW} MW`}
+                  min={6} max={30} step={1}
+                  onChange={(v) => store.setChargePower(v)}
+                  accentColor="var(--cyan)"
+                />
+                <p className="text-[10px] -mt-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+                  Case design point is 12 MW. Higher ratings assume grid reinforcement and scale the $1M/port cost.
+                </p>
+
+                {/* Commercial assumptions */}
+                <div className="pt-3" style={{ borderTop: '1px solid var(--border)' }}>
+                  <span className="text-[10px] uppercase tracking-widest mb-3 block font-semibold" style={{ color: 'var(--amber)', fontFamily: 'var(--font-display)', letterSpacing: '0.12em' }}>
+                    Commercial
+                  </span>
+                </div>
+
+                <SliderControl
+                  label="Carbon Price"
+                  value={config.carbonPricePerTon}
+                  displayValue={`$${config.carbonPricePerTon}/t`}
+                  min={0} max={400} step={10}
+                  onChange={(v) => store.setCarbonPrice(v)}
+                  accentColor="var(--amber)"
+                />
+                <p className="text-[10px] -mt-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+                  Applied to both vessels. The case&apos;s $190/t is the penalty for missing the tender&apos;s fleet-wide target, not a tax on every tonne.
+                </p>
+
+                <SliderControl
+                  label="Schedule Tolerance"
+                  value={config.scheduleToleranceHours}
+                  displayValue={`${config.scheduleToleranceHours} h`}
+                  min={0} max={24} step={1}
+                  onChange={(v) => store.setScheduleTolerance(v)}
+                  accentColor="var(--red)"
+                />
+                <p className="text-[10px] -mt-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+                  Allowed drift from the Exhibit 2 timetable before the daily-call obligation is treated as broken.
+                </p>
               </motion.div>
             )}
           </AnimatePresence>

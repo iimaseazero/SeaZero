@@ -7,9 +7,8 @@ import 'leaflet/dist/leaflet.css';
 import { ARCTIC_CIRCLE_LAT } from '@/data/ports';
 import { useSimStore } from '@/store/useSimStore';
 import PlaybackBar from './PlaybackBar';
-import { PortConfig } from '@/engine/types';
+import { PortConfig, LegResult } from '@/engine/types';
 import { Port } from '@/data/ports';
-import { Leg } from '@/data/legs';
 import { Zap, Battery } from 'lucide-react';
 
 // ─── Arctic Circle line (static, never re-renders) ───
@@ -79,10 +78,12 @@ interface PortMarkersProps {
   portConfigs: PortConfig[];
 }
 const PortMarkers = memo(function PortMarkers({ ports, portConfigs }: PortMarkersProps) {
+  // Port ids need not match array positions once a custom route is loaded.
+  const configById = new Map(portConfigs.map((pc) => [pc.portId, pc]));
   return (
     <>
       {ports.map((port) => {
-        const pc = portConfigs[port.id];
+        const pc = configById.get(port.id);
         const hasCharger = pc?.hasCharger;
         const hasBuffer = pc?.hasBufferBattery;
         const radius = hasCharger ? 5 : 3;
@@ -128,7 +129,7 @@ interface RouteSegmentsProps {
   currentLegIndex: number;
   deadZoneLegs: Set<number>;
   ports: Port[];
-  legs: Leg[];
+  legs: LegResult[];
 }
 const RouteSegments = memo(function RouteSegments({ currentLegIndex, deadZoneLegs, ports, legs }: RouteSegmentsProps) {
   // Build batched polylines: sailed, dead-zone, current, ahead
@@ -138,10 +139,13 @@ const RouteSegments = memo(function RouteSegments({ currentLegIndex, deadZoneLeg
     const current: [number, number][][] = [];
     const ahead: [number, number][][] = [];
 
+    const portById = new Map(ports.map((p) => [p.id, p]));
+
     for (let i = 0; i < legs.length; i++) {
       const leg = legs[i];
-      const from = ports[leg.fromPortId];
-      const to = ports[leg.toPortId];
+      const from = portById.get(leg.fromPortId);
+      const to = portById.get(leg.toPortId);
+      if (!from || !to) continue; // malformed route — draw what we can
       const segment: [number, number][] = [[from.lat, from.lng], [to.lat, to.lng]];
 
       if (deadZoneLegs.has(i)) {
@@ -166,31 +170,8 @@ const RouteSegments = memo(function RouteSegments({ currentLegIndex, deadZoneLeg
 
   return (
     <>
-      {/* Sailed segments */}
-      {sailedPositions.map((positions, i) => (
-        <Polyline
-          key={`s-${i}`}
-          positions={positions}
-          pathOptions={{ color: '#54D3C6', weight: 3, opacity: 0.8 }}
-        />
-      ))}
-      {/* Dead zone segments */}
-      {deadZonePositions.map((positions, i) => (
-        <Polyline
-          key={`d-${i}`}
-          positions={positions}
-          pathOptions={{ color: '#D24B43', weight: 3, opacity: 0.8 }}
-        />
-      ))}
-      {/* Current leg */}
-      {currentPositions.map((positions, i) => (
-        <Polyline
-          key={`c-${i}`}
-          positions={positions}
-          pathOptions={{ color: '#54D3C6', weight: 4, opacity: 1 }}
-        />
-      ))}
-      {/* Ahead segments */}
+      {/* Ahead first: on a roundtrip the return legs overlap the outbound ones,
+          so the dim segments must not paint over what has already been sailed. */}
       {aheadPositions.map((positions, i) => (
         <Polyline
           key={`a-${i}`}
@@ -198,12 +179,36 @@ const RouteSegments = memo(function RouteSegments({ currentLegIndex, deadZoneLeg
           pathOptions={{ color: '#2A5A8A', weight: 2, opacity: 0.4 }}
         />
       ))}
+      {sailedPositions.map((positions, i) => (
+        <Polyline
+          key={`s-${i}`}
+          positions={positions}
+          pathOptions={{ color: '#54D3C6', weight: 3, opacity: 0.8 }}
+        />
+      ))}
+      {deadZonePositions.map((positions, i) => (
+        <Polyline
+          key={`d-${i}`}
+          positions={positions}
+          pathOptions={{ color: '#D24B43', weight: 3, opacity: 0.9 }}
+        />
+      ))}
+      {currentPositions.map((positions, i) => (
+        <Polyline
+          key={`c-${i}`}
+          positions={positions}
+          pathOptions={{ color: '#54D3C6', weight: 4, opacity: 1 }}
+        />
+      ))}
     </>
   );
 });
 
 export default function RouteMap() {
-  const { simResult, config, playback, setPlaybackState, setPlaying, activePorts, activeLegs } = useSimStore();
+  const { simResult, config, playback, setPlaybackState, activePorts } = useSimStore();
+  // The simulated voyage is the source of truth for the leg sequence: a
+  // roundtrip has twice as many legs as the tabulated route.
+  const voyageLegs = simResult.legs;
   const [shipPos, setShipPos] = useState<[number, number]>([activePorts[0]?.lat ?? 60, activePorts[0]?.lng ?? 5]);
   const [socPercent, setSocPercent] = useState(100);
   const [cameraPanTarget, setCameraPanTarget] = useState<[number, number] | null>(null);
@@ -233,18 +238,22 @@ export default function RouteMap() {
 
   // Interpolate ship position
   const getShipPosition = useCallback((legIndex: number, progress: number): [number, number] => {
-    if (legIndex >= activeLegs.length) {
+    const portById = new Map(activePorts.map((p) => [p.id, p]));
+    const fallback: [number, number] = [activePorts[0]?.lat ?? 60, activePorts[0]?.lng ?? 5];
+
+    if (legIndex >= voyageLegs.length) {
       const last = activePorts[activePorts.length - 1];
-      return [last.lat, last.lng];
+      return last ? [last.lat, last.lng] : fallback;
     }
-    const leg = activeLegs[legIndex];
-    const from = activePorts[leg.fromPortId];
-    const to = activePorts[leg.toPortId];
+    const leg = voyageLegs[legIndex];
+    const from = portById.get(leg.fromPortId);
+    const to = portById.get(leg.toPortId);
+    if (!from || !to) return fallback;
     return [
       from.lat + (to.lat - from.lat) * progress,
       from.lng + (to.lng - from.lng) * progress,
     ];
-  }, [activePorts, activeLegs]);
+  }, [activePorts, voyageLegs]);
 
   // Get SoC percent at current playback position
   const getSocPercent = useCallback((legIndex: number, progress: number): number => {
@@ -267,7 +276,7 @@ export default function RouteMap() {
     const PLAYBACK_DURATION_SECONDS = 60;
     const BASE_PLAYBACK_SPEED = totalLegTime / PLAYBACK_DURATION_SECONDS;
     const legsData = simResult.legs;
-    const totalLegs = activeLegs.length;
+    const totalLegs = voyageLegs.length;
     let prevLegIndex = playbackRef.current.currentLegIndex;
     const MIN_FRAME_INTERVAL = 33; // ~30fps max to avoid CPU saturation
 
@@ -363,17 +372,22 @@ export default function RouteMap() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playback.isPlaying]);
 
-  // Update ship position when manually scrubbing (not during animation)
-  useEffect(() => {
-    if (!playback.isPlaying) {
-      const pos = getShipPosition(playback.currentLegIndex, playback.legProgress);
-      setShipPos(pos);
-      setSocPercent(getSocPercent(playback.currentLegIndex, playback.legProgress));
-    }
-  }, [playback.currentLegIndex, playback.legProgress, playback.isPlaying, getShipPosition, getSocPercent]);
+  // While paused, the marker is a pure function of the scrub position, so it is
+  // derived during render rather than pushed into state from an effect.
+  const displayPos = playback.isPlaying
+    ? shipPos
+    : getShipPosition(playback.currentLegIndex, playback.legProgress);
+  const displaySoc = playback.isPlaying
+    ? socPercent
+    : getSocPercent(playback.currentLegIndex, playback.legProgress);
 
-  // Map bounds
-  const bounds = useMemo(() => L.latLngBounds(routeCoords), [routeCoords]);
+  // Map bounds — Leaflet throws on empty bounds, so fall back to Norway.
+  const bounds = useMemo(
+    () => (routeCoords.length > 0
+      ? L.latLngBounds(routeCoords)
+      : L.latLngBounds([[58, 4], [71, 31]])),
+    [routeCoords],
+  );
 
   return (
     <div className="h-full flex flex-col">
@@ -396,7 +410,7 @@ export default function RouteMap() {
             currentLegIndex={playback.currentLegIndex}
             deadZoneLegs={deadZoneLegs}
             ports={activePorts}
-            legs={activeLegs}
+            legs={voyageLegs}
           />
 
           {/* Port markers — only re-renders on port config change */}
@@ -404,8 +418,8 @@ export default function RouteMap() {
 
           {/* Ship marker */}
           <Marker
-            position={shipPos}
-            icon={getShipIcon(socPercent)}
+            position={displayPos}
+            icon={getShipIcon(displaySoc)}
           />
 
           {/* Camera follow during playback — throttled via parent */}

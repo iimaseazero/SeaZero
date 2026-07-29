@@ -1,6 +1,8 @@
 // Sea Zero — 34 Hurtigruten ports, Bergen → Kirkenes
 // Coordinates hardcoded from verified Norwegian coastal data
 
+import { GRID_HEADROOM_MW } from '@/engine/constants';
+
 export type GridTier = 'strong' | 'medium' | 'weak';
 
 export interface Port {
@@ -13,16 +15,14 @@ export interface Port {
 }
 
 /**
- * Grid headroom by tier (MW):
- *  strong = 12 MW
- *  medium = 6 MW
- *  weak   = 2 MW
+ * Grid headroom by tier (MW). Re-exported from the engine constants so the
+ * numbers live in exactly one place.
+ *
+ * [ASSUMPTION] The case does not tabulate per-port grid capacity — it says only
+ * that grid access is better in the south and that northern ports would need
+ * additional infrastructure investment.
  */
-export const GRID_HEADROOM: Record<GridTier, number> = {
-  strong: 12,
-  medium: 6,
-  weak: 2,
-};
+export const GRID_HEADROOM: Record<GridTier, number> = { ...GRID_HEADROOM_MW };
 
 export const PORTS: Port[] = [
   { id: 0,  name: 'Bergen',        lat: 60.391, lng:  5.322, gridTier: 'strong', portStayMinutes: 0   },
