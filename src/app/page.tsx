@@ -101,11 +101,11 @@ export default function Home() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className={`w-full lg:w-[440px] flex-shrink-0 p-3 sm:p-4 flex flex-col lg:h-full bg-[var(--background)] border-t lg:border-t-0 lg:border-l border-[var(--border)] ${
-            mobileTab === 'map' ? 'flex h-[550px] lg:h-full' : 'hidden lg:flex'
+          className={`w-full lg:w-[440px] flex-shrink-0 p-3 sm:p-4 flex flex-col bg-[var(--background)] border-t lg:border-t-0 lg:border-l border-[var(--border)] ${
+            mobileTab === 'map' ? 'flex' : 'hidden lg:flex'
           }`}
         >
-          <HoverTag tag="Route Map & Playback" position="top-right" className="flex-1 flex flex-col min-h-0 h-full">
+          <HoverTag tag="Route Map & Playback" position="top-right" className="w-full flex flex-col">
             <RouteMap />
           </HoverTag>
         </motion.aside>

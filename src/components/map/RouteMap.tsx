@@ -401,8 +401,8 @@ export default function RouteMap() {
   );
 
   return (
-    <div className="h-full flex flex-col min-h-[350px] lg:min-h-0">
-      <div className="flex-1 rounded-xl overflow-hidden border border-[var(--card-border)] relative min-h-[250px] lg:min-h-0" style={{ minHeight: 0 }}>
+    <div className="w-full flex flex-col">
+      <div className="h-[380px] sm:h-[440px] lg:h-[490px] rounded-xl overflow-hidden border border-[var(--card-border)] relative flex-shrink-0">
         <MapContainer
           bounds={bounds}
           style={{ width: '100%', height: '100%' }}
