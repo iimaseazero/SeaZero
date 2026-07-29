@@ -9,7 +9,6 @@ import OperationalCard from '@/components/cards/OperationalCard';
 import FinancialCard from '@/components/cards/FinancialCard';
 import EnvironmentalCard from '@/components/cards/EnvironmentalCard';
 import HoverTag from '@/components/HoverTag';
-import { useSimStore } from '@/store/useSimStore';
 import { BarChart3, Sliders, Map as MapIcon } from 'lucide-react';
 
 // Dynamic import for Leaflet (needs browser APIs)
@@ -24,93 +23,11 @@ const RouteMap = dynamic(() => import('@/components/map/RouteMap'), {
   ),
 });
 
-function IssuesBadge() {
-  const { simResult } = useSimStore();
-  const issues = simResult.deadZoneCount + simResult.gridThrottledPortCount;
-  if (issues === 0) return null;
-
-  return (
-    <motion.div
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      className="relative flex items-center gap-1.5 px-2.5 py-1 rounded-full"
-      style={{
-        background: 'var(--red-dim)',
-        border: '1px solid rgba(239, 68, 68, 0.2)',
-      }}
-    >
-      <div
-        className="w-2 h-2 rounded-full"
-        style={{ backgroundColor: 'var(--red)', animation: 'shimmer 2s ease-in-out infinite' }}
-      />
-      <span className="text-xs font-semibold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--red)' }}>
-        {issues} issue{issues === 1 ? '' : 's'}
-      </span>
-    </motion.div>
-  );
-}
-
 export default function Home() {
-  const { routeName, simResult } = useSimStore();
   const [mobileTab, setMobileTab] = useState<'analytics' | 'config' | 'map'>('analytics');
-  const totalDistance = Math.round(simResult.totalDistanceKm);
-  const isRoundtrip = simResult.voyageMode === 'roundtrip';
 
   return (
     <main className="min-h-screen lg:h-screen flex flex-col overflow-y-auto lg:overflow-hidden relative">
-      {/* ─── Top header bar ─── */}
-      <motion.header
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 relative z-10"
-        style={{
-          background: 'var(--background)',
-          borderBottom: '1px solid var(--border)',
-          backdropFilter: 'blur(16px)',
-        }}
-      >
-        <div className="flex items-center gap-4">
-          {/* Logo mark */}
-          <div className="flex items-center gap-2.5">
-            <div className="relative">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
-                background: 'var(--cyan)',
-              }}>
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M8 2L13 12H3L8 2Z" fill="white" opacity="0.9"/>
-                  <path d="M4 13H12" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
-                </svg>
-              </div>
-            </div>
-            <div>
-              <h1 className="text-base sm:text-lg font-bold tracking-wide uppercase leading-tight" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)', letterSpacing: '0.08em' }}>
-                Sea Zero
-              </h1>
-              <span className="text-[10px] sm:text-[11px] font-medium" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-                Coastal Route Electrification Simulator
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between w-full sm:w-auto gap-3 sm:gap-5">
-          <div className="flex items-center gap-2 sm:gap-3 px-2.5 sm:px-3 py-1.5 rounded-lg" style={{ background: 'var(--glass-strong)', border: '1px solid var(--border)' }}>
-            <span className="text-[10px] sm:text-[11px] font-medium tracking-wide truncate max-w-[120px] sm:max-w-none" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-              {routeName}{isRoundtrip ? ' \u21c4' : ''}
-            </span>
-            <span className="w-px h-3" style={{ background: 'var(--border)' }} />
-            <span className="text-[10px] sm:text-[11px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-              {totalDistance.toLocaleString()} km
-            </span>
-            <span className="w-px h-3" style={{ background: 'var(--border)' }} />
-            <span className="text-[10px] sm:text-[11px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
-              {simResult.portCallCount} calls
-            </span>
-          </div>
-          <IssuesBadge />
-        </div>
-      </motion.header>
-
       {/* ─── Mobile View Switcher Tabs (< lg screens) ─── */}
       <div className="lg:hidden flex border-b border-[var(--border)] bg-[var(--background)] px-4 py-2 gap-2 z-10 sticky top-0">
         {[
