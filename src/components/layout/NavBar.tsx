@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Activity, Settings, Trophy, Menu, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useSimStore } from '@/store/useSimStore';
 
 const NAV_ITEMS = [
   { href: '/', label: 'Simulator', Icon: Activity },
@@ -11,9 +13,38 @@ const NAV_ITEMS = [
   { href: '/compete', label: 'Compete', Icon: Trophy },
 ];
 
+function IssuesBadge() {
+  const { simResult } = useSimStore();
+  const issues = simResult.deadZoneCount + simResult.gridThrottledPortCount;
+  if (issues === 0) return null;
+
+  return (
+    <motion.div
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      className="relative flex items-center gap-1.5 px-2.5 py-1 rounded-full flex-shrink-0"
+      style={{
+        background: 'var(--red-dim)',
+        border: '1px solid rgba(239, 68, 68, 0.2)',
+      }}
+    >
+      <div
+        className="w-2 h-2 rounded-full"
+        style={{ backgroundColor: 'var(--red)', animation: 'shimmer 2s ease-in-out infinite' }}
+      />
+      <span className="text-xs font-semibold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--red)' }}>
+        {issues} issue{issues === 1 ? '' : 's'}
+      </span>
+    </motion.div>
+  );
+}
+
 export default function NavBar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { routeName, simResult } = useSimStore();
+  const totalDistance = Math.round(simResult.totalDistanceKm);
+  const isRoundtrip = simResult.voyageMode === 'roundtrip';
 
   // Close mobile menu when pathname changes
   useEffect(() => {
@@ -29,30 +60,53 @@ export default function NavBar() {
         backdropFilter: 'blur(16px)',
       }}
     >
-      <div className="flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 no-underline">
+      <div className="flex items-center justify-between gap-4">
+        {/* Left: Logo & Subtitle */}
+        <Link href="/" className="flex items-center gap-2.5 no-underline flex-shrink-0">
           <div
-            className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+            className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{
               background: 'var(--cyan)',
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M8 2L13 12H3L8 2Z" fill="white" opacity="0.9" />
               <path d="M4 13H12" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
             </svg>
           </div>
-          <span
-            className="text-sm font-bold tracking-wide uppercase"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
-          >
-            Sea Zero
-          </span>
+          <div>
+            <span
+              className="text-sm font-bold tracking-wide uppercase block leading-tight"
+              style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)', letterSpacing: '0.08em' }}
+            >
+              Sea Zero
+            </span>
+            <span className="text-[10px] font-medium hidden sm:block" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
+              Coastal Route Electrification Simulator
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Nav links */}
-        <div className="hidden md:flex items-center gap-1">
+        {/* Center: Route metadata & Issues pill */}
+        <div className="hidden lg:flex items-center gap-3">
+          <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: 'var(--glass-strong)', border: '1px solid var(--border)' }}>
+            <span className="text-[11px] font-medium tracking-wide" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+              {routeName}{isRoundtrip ? ' \u21c4' : ''}
+            </span>
+            <span className="w-px h-3" style={{ background: 'var(--border)' }} />
+            <span className="text-[11px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+              {totalDistance.toLocaleString()} km
+            </span>
+            <span className="w-px h-3" style={{ background: 'var(--border)' }} />
+            <span className="text-[11px] font-medium" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-muted)' }}>
+              {simResult.portCallCount} calls
+            </span>
+          </div>
+          <IssuesBadge />
+        </div>
+
+        {/* Right: Nav Links */}
+        <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -98,8 +152,19 @@ export default function NavBar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div
-          className="md:hidden pt-3 pb-2 mt-2 space-y-1.5 border-t border-[var(--border)] animate-in fade-in slide-in-from-top-2"
+          className="md:hidden pt-3 pb-2 mt-2 space-y-2 border-t border-[var(--border)] animate-in fade-in slide-in-from-top-2"
         >
+          <div className="flex items-center justify-between px-2 pb-1">
+            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px]" style={{ background: 'var(--glass-strong)', border: '1px solid var(--border)' }}>
+              <span style={{ color: 'var(--text-secondary)' }}>{routeName}{isRoundtrip ? ' \u21c4' : ''}</span>
+              <span>·</span>
+              <span style={{ color: 'var(--text-muted)' }}>{totalDistance.toLocaleString()} km</span>
+              <span>·</span>
+              <span style={{ color: 'var(--text-muted)' }}>{simResult.portCallCount} calls</span>
+            </div>
+            <IssuesBadge />
+          </div>
+
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href;
             return (

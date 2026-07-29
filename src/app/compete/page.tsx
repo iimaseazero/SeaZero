@@ -130,8 +130,8 @@ export default function CompetePage() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className={`w-full lg:w-[380px] flex-shrink-0 p-3 sm:p-4 flex flex-col lg:h-full bg-[var(--background)] border-t lg:border-t-0 lg:border-l border-[var(--border)] ${
-            mobileTab === 'map' ? 'flex h-[550px] lg:h-full' : 'hidden lg:flex'
+          className={`w-full lg:w-[380px] flex-shrink-0 p-3 sm:p-4 flex flex-col bg-[var(--background)] border-t lg:border-t-0 lg:border-l border-[var(--border)] ${
+            mobileTab === 'map' ? 'flex' : 'hidden lg:flex'
           }`}
         >
           <RouteMap />
