@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Download } from 'lucide-react';
 import { useSimStore } from '@/store/useSimStore';
-import { Team, addSubmission, computeScore, ScoreBreakdown } from '@/store/persistence';
+import { Team, Submission, addSubmission, computeScore, ScoreBreakdown } from '@/store/persistence';
+import { downloadTeamReport } from '@/utils/generateTeamReport';
 
 function formatM(val: number): string {
   if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
@@ -127,80 +128,111 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
         </div>
       </div>
 
-      {/* Submit button */}
-      <AnimatePresence mode="wait">
-        {justSubmitted ? (
-          <motion.div
-            key="success"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex items-center justify-center gap-2 py-3 rounded-xl"
-            style={{
-              background: 'var(--green-dim)',
-              border: '1px solid rgba(52, 211, 153, 0.2)',
-            }}
-          >
-            <CheckCircle size={20} className="text-green-500" />
-            <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--green)' }}>
-              Submitted Successfully!
-            </span>
-          </motion.div>
-        ) : showConfirm ? (
-          <motion.div
-            key="confirm"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex gap-2"
-          >
-            <button
-              onClick={handleSubmit}
-              className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
+      {/* Submit button & Download Current Report */}
+      <div className="space-y-2">
+        <AnimatePresence mode="wait">
+          {justSubmitted ? (
+            <motion.div
+              key="success"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex items-center justify-center gap-2 py-3 rounded-xl"
               style={{
-                fontFamily: 'var(--font-display)',
-                background: 'rgba(52, 211, 153, 0.15)',
-                color: 'var(--green)',
-                border: '1px solid rgba(52, 211, 153, 0.25)',
+                background: 'var(--green-dim)',
+                border: '1px solid rgba(52, 211, 153, 0.2)',
               }}
             >
-              Confirm Submit for {selectedTeam?.name}
-            </button>
-            <button
-              onClick={() => setShowConfirm(false)}
-              className="px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+              <CheckCircle size={20} className="text-green-500" />
+              <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--green)' }}>
+                Submitted Successfully!
+              </span>
+            </motion.div>
+          ) : showConfirm ? (
+            <motion.div
+              key="confirm"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex gap-2"
+            >
+              <button
+                onClick={handleSubmit}
+                className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  background: 'rgba(52, 211, 153, 0.15)',
+                  color: 'var(--green)',
+                  border: '1px solid rgba(52, 211, 153, 0.25)',
+                }}
+              >
+                Confirm Submit for {selectedTeam?.name}
+              </button>
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-3 rounded-xl text-sm font-semibold transition-all"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  background: 'var(--glass-strong)',
+                  color: 'var(--text-muted)',
+                  border: '1px solid var(--card-border)',
+                }}
+              >
+                Cancel
+              </button>
+            </motion.div>
+          ) : (
+            <motion.button
+              key="submit"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => canSubmit && setShowConfirm(true)}
+              disabled={!canSubmit}
+              className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
               style={{
                 fontFamily: 'var(--font-display)',
-                background: 'var(--glass-strong)',
-                color: 'var(--text-muted)',
-                border: '1px solid var(--card-border)',
+                background: canSubmit ? 'rgba(56, 217, 200, 0.12)' : 'var(--glass)',
+                color: canSubmit ? 'var(--cyan)' : 'var(--text-muted)',
+                border: `1px solid ${canSubmit ? 'rgba(56, 217, 200, 0.2)' : 'var(--card-border)'}`,
+                cursor: canSubmit ? 'pointer' : 'not-allowed',
+                boxShadow: canSubmit ? '0 0 20px rgba(56, 217, 200, 0.06)' : 'none',
               }}
             >
-              Cancel
-            </button>
-          </motion.div>
-        ) : (
-          <motion.button
-            key="submit"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => canSubmit && setShowConfirm(true)}
-            disabled={!canSubmit}
-            className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
-            style={{
-              fontFamily: 'var(--font-display)',
-              background: canSubmit ? 'rgba(56, 217, 200, 0.12)' : 'var(--glass)',
-              color: canSubmit ? 'var(--cyan)' : 'var(--text-muted)',
-              border: `1px solid ${canSubmit ? 'rgba(56, 217, 200, 0.2)' : 'var(--card-border)'}`,
-              cursor: canSubmit ? 'pointer' : 'not-allowed',
-              boxShadow: canSubmit ? '0 0 20px rgba(56, 217, 200, 0.06)' : 'none',
-            }}
-          >
-            {canSubmit ? 'Submit Configuration' : 'Select a team first'}
-          </motion.button>
-        )}
-      </AnimatePresence>
+              {canSubmit ? 'Submit Configuration' : 'Select a team first'}
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        <button
+          onClick={() => {
+            const tempSubmission: Submission = {
+              id: `preview-${Date.now()}`,
+              teamId: selectedTeam?.id || 'preview',
+              teamName: selectedTeam?.name || 'Current Configuration',
+              teamColor: selectedTeam?.color || '#38D9C8',
+              config,
+              simResult,
+              economics,
+              emissions,
+              score: preview.totalScore,
+              breakdown: preview,
+              submittedAt: Date.now(),
+            };
+            downloadTeamReport(tempSubmission);
+          }}
+          className="w-full py-2.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all"
+          style={{
+            fontFamily: 'var(--font-display)',
+            background: 'var(--glass-strong)',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--card-border)',
+          }}
+        >
+          <Download size={14} className="text-cyan-400" />
+          Download Current Report
+        </button>
+      </div>
     </motion.div>
   );
 }
