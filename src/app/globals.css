@@ -1,26 +1,226 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ─── Refined palette: standard minimalist dark mode ─── */
+  --background: #09090B; /* zinc-950 */
+  --foreground: #FAFAFA; /* zinc-50 */
+  --navy: #09090B;
+  --navy-light: #18181B; /* zinc-900 */
+  --navy-medium: #27272A; /* zinc-800 */
+  --navy-surface: #18181B;
+
+  /* ─── Primary accent ─── */
+  --cyan: #06B6D4; /* cyan-500 */
+  --cyan-dim: rgba(6, 182, 212, 0.15);
+  --cyan-glow: rgba(6, 182, 212, 0.08);
+
+  /* ─── Secondary ─── */
+  --steel: #3B82F6; /* blue-500 */
+  --steel-dim: #2563EB;
+  --steel-surface: rgba(59, 130, 246, 0.08);
+
+  /* ─── Status ─── */
+  --green: #10B981; /* emerald-500 */
+  --green-dim: rgba(16, 185, 129, 0.12);
+
+  --amber: #F59E0B; /* amber-500 */
+  --amber-dim: rgba(245, 158, 11, 0.12);
+
+  --red: #EF4444; /* red-500 */
+  --red-dim: rgba(239, 68, 68, 0.10);
+
+  /* ─── Text hierarchy ─── */
+  --text-primary: #F4F4F5; /* zinc-100 */
+  --text-secondary: #A1A1AA; /* zinc-400 */
+  --text-muted: #71717A; /* zinc-500 */
+
+  /* ─── Borders & surfaces ─── */
+  --border: #27272A; /* zinc-800 */
+  --border-subtle: #18181B; /* zinc-900 */
+  --card-bg: #09090B; /* zinc-950 */
+  --card-border: #27272A; /* zinc-800 */
+  --card-hover-border: #3F3F46; /* zinc-700 */
+  --glass: #18181B; /* zinc-900 */
+  --glass-strong: #27272A; /* zinc-800 */
+
+  /* ─── Fonts ─── */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-navy: var(--navy);
+  --color-navy-light: var(--navy-light);
+  --color-navy-medium: var(--navy-medium);
+  --color-steel: var(--steel);
+  --color-steel-dim: var(--steel-dim);
+  --color-cyan: var(--cyan);
+  --color-amber: var(--amber);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+/* ─── Minimalist card ─── */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+.glass-card:hover {
+  border-color: var(--card-hover-border);
+}
+
+/* ─── Leaflet overrides ─── */
+.leaflet-container {
+  background: var(--navy) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 18, 32, 0.85) !important;
+  color: var(--text-muted) !important;
+  font-size: 9px !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--steel-dim) !important;
+}
+
+
+
+/* ─── Pulse animation ─── */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.pulse-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ─── Recharts dark theme ─── */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(148, 163, 184, 0.06) !important;
+}
+
+.recharts-text {
+  fill: var(--text-muted) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+}
+
+/* ─── Leaflet tooltip ─── */
+.dark-tooltip {
+  background: rgba(14, 26, 43, 0.92) !important;
+  border: 1px solid rgba(148, 163, 184, 0.12) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.dark-tooltip .leaflet-tooltip-tip {
+  display: none;
+}
+
+/* ─── Custom range slider ─── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--navy-medium), var(--navy-surface));
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--navy);
+  box-shadow: 0 0 8px rgba(56, 217, 200, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 14px rgba(56, 217, 200, 0.45);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--navy);
+  box-shadow: 0 0 8px rgba(56, 217, 200, 0.3);
+  cursor: pointer;
+}
+
+/* ─── Ship wake animation ─── */
+@keyframes wake-fade {
+  0% { opacity: 0.6; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(0.3); }
+}
+
+/* ─── Subtle shimmer for status indicators ─── */
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
