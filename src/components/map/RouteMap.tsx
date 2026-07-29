@@ -204,6 +204,17 @@ const RouteSegments = memo(function RouteSegments({ currentLegIndex, deadZoneLeg
   );
 });
 
+function MapResizeHandler() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+}
+
 export default function RouteMap() {
   const { simResult, config, playback, setPlaybackState, activePorts } = useSimStore();
   // The simulated voyage is the source of truth for the leg sequence: a
@@ -390,14 +401,15 @@ export default function RouteMap() {
   );
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1 rounded-xl overflow-hidden border border-[var(--card-border)]" style={{ minHeight: 0 }}>
+    <div className="h-full flex flex-col min-h-[350px] lg:min-h-0">
+      <div className="flex-1 rounded-xl overflow-hidden border border-[var(--card-border)] relative min-h-[250px] lg:min-h-0" style={{ minHeight: 0 }}>
         <MapContainer
           bounds={bounds}
           style={{ width: '100%', height: '100%' }}
           zoomControl={false}
           attributionControl={true}
         >
+          <MapResizeHandler />
           <TileLayer
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             attribution='&copy; <a href="https://carto.com/">CARTO</a>'

@@ -11,18 +11,18 @@ import { TrendingDown, AlertTriangle, Clock, Plug, Fuel, Scale } from 'lucide-re
 function StatTile({ label, value, unit, alert, icon }: { label: string; value: string | number; unit?: string; alert?: boolean; icon?: React.ReactNode }) {
   return (
     <div
-      className="flex flex-col items-center px-4 py-3.5 rounded-xl"
+      className="flex flex-col items-center px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl"
       style={{
         background: alert ? 'var(--red-dim)' : 'var(--glass-strong)',
         border: `1px solid ${alert ? 'rgba(239,68,68,0.15)' : 'var(--card-border)'}`,
       }}
     >
-      <span className="text-[11px] uppercase tracking-wider font-medium mb-1.5 flex items-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-        {icon && <span className="mr-1.5 flex items-center justify-center text-cyan-400 opacity-80">{icon}</span>}{label}
+      <span className="text-[10px] sm:text-[11px] uppercase tracking-wider font-medium mb-1 flex items-center text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+        {icon && <span className="mr-1 flex items-center justify-center text-cyan-400 opacity-80">{icon}</span>}{label}
       </span>
-      <span className={`text-2xl font-bold ${alert ? 'text-[var(--red)]' : 'text-[var(--text-primary)]'}`} style={{ fontFamily: 'var(--font-mono)', lineHeight: 1.1 }}>
+      <span className={`text-lg sm:text-2xl font-bold ${alert ? 'text-[var(--red)]' : 'text-[var(--text-primary)]'}`} style={{ fontFamily: 'var(--font-mono)', lineHeight: 1.1 }}>
         {value}
-        {unit && <span className="text-sm ml-1 font-normal" style={{ color: 'var(--text-secondary)' }}>{unit}</span>}
+        {unit && <span className="text-xs sm:text-sm ml-0.5 sm:ml-1 font-normal" style={{ color: 'var(--text-secondary)' }}>{unit}</span>}
       </span>
     </div>
   );
@@ -190,15 +190,15 @@ export default function OperationalCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
-      className="glass-card p-6"
+      className="glass-card p-4 sm:p-6"
     >
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--cyan)' }} />
-        <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+        <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
           {isIce ? 'Operational — Fuel & Schedule' : 'Operational — State of Charge'}
         </h3>
         {isAnimating && (
-          <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide uppercase flex items-center gap-1.5" style={{
+          <span className="ml-auto text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide uppercase flex items-center gap-1.5" style={{
             fontFamily: 'var(--font-mono)',
             color: 'var(--cyan)',
             background: 'rgba(56, 217, 200, 0.08)',
@@ -342,7 +342,7 @@ export default function OperationalCard() {
       )}
 
       {/* Stat tiles — update progressively during playback */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {isIce ? (
           <>
             <StatTile icon={<Fuel size={16} />} label="MGO Burned" value={simResult.totalFuelTonnes.toFixed(1)} unit="t" />
