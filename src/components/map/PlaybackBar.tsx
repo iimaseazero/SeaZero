@@ -95,71 +95,73 @@ export default function PlaybackBar() {
   };
 
   return (
-    <div className="mt-3 rounded-xl px-4 py-3" style={{
+    <div className="mt-3 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3" style={{
       background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       backdropFilter: 'blur(16px)',
     }}>
       {/* Controls row */}
-      <div className="flex items-center gap-2 mb-2.5">
-        {/* Play / Pause */}
-        <button
-          onClick={handlePlayPause}
-          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
-          style={{
-            background: playback.isPlaying ? 'rgba(56, 217, 200, 0.12)' : 'var(--glass-strong)',
-            border: `1px solid ${playback.isPlaying ? 'rgba(56, 217, 200, 0.25)' : 'var(--card-border)'}`,
-            color: playback.isPlaying ? 'var(--cyan)' : 'var(--text-secondary)',
-            fontSize: 13,
-          }}
-          title={playback.isPlaying ? 'Pause' : 'Play'}
-        >
-          {playback.isPlaying ? '⏸' : '▶'}
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          {/* Play / Pause */}
+          <button
+            onClick={handlePlayPause}
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
+            style={{
+              background: playback.isPlaying ? 'rgba(56, 217, 200, 0.12)' : 'var(--glass-strong)',
+              border: `1px solid ${playback.isPlaying ? 'rgba(56, 217, 200, 0.25)' : 'var(--card-border)'}`,
+              color: playback.isPlaying ? 'var(--cyan)' : 'var(--text-secondary)',
+              fontSize: 12,
+            }}
+            title={playback.isPlaying ? 'Pause' : 'Play'}
+          >
+            {playback.isPlaying ? '⏸' : '▶'}
+          </button>
 
-        {/* Restart */}
-        <button
-          onClick={handleRestart}
-          className="w-8 h-8 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
-          style={{
-            background: 'var(--glass-strong)',
-            border: '1px solid var(--card-border)',
-            color: 'var(--text-muted)',
-          }}
-          title="Restart"
-        >
-          <RotateCcw size={13} />
-        </button>
+          {/* Restart */}
+          <button
+            onClick={handleRestart}
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center transition-all flex-shrink-0"
+            style={{
+              background: 'var(--glass-strong)',
+              border: '1px solid var(--card-border)',
+              color: 'var(--text-muted)',
+            }}
+            title="Restart"
+          >
+            <RotateCcw size={13} />
+          </button>
 
-        {/* Speed selector */}
-        <div className="flex rounded-lg overflow-hidden flex-shrink-0" style={{ border: '1px solid var(--card-border)' }}>
-          {SPEED_OPTIONS.map((speed) => {
-            const isActive = (playback.playbackSpeed || 1) === speed;
-            return (
-              <button
-                key={speed}
-                onClick={() => setPlaybackSpeed(speed)}
-                className="px-2 py-1 text-[11px] font-semibold transition-all"
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  backgroundColor: isActive ? 'rgba(56, 217, 200, 0.12)' : 'transparent',
-                  color: isActive ? 'var(--cyan)' : 'var(--text-muted)',
-                  borderRight: speed !== 8 ? '1px solid var(--card-border)' : 'none',
-                  minWidth: 32,
-                }}
-                title={`${speed}× speed`}
-              >
-                {speed}×
-              </button>
-            );
-          })}
+          {/* Speed selector */}
+          <div className="flex rounded-lg overflow-hidden flex-shrink-0" style={{ border: '1px solid var(--card-border)' }}>
+            {SPEED_OPTIONS.map((speed) => {
+              const isActive = (playback.playbackSpeed || 1) === speed;
+              return (
+                <button
+                  key={speed}
+                  onClick={() => setPlaybackSpeed(speed)}
+                  className="px-1.5 sm:px-2 py-1 text-[10px] sm:text-[11px] font-semibold transition-all"
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    backgroundColor: isActive ? 'rgba(56, 217, 200, 0.12)' : 'transparent',
+                    color: isActive ? 'var(--cyan)' : 'var(--text-muted)',
+                    borderRight: speed !== 8 ? '1px solid var(--card-border)' : 'none',
+                    minWidth: 28,
+                  }}
+                  title={`${speed}× speed`}
+                >
+                  {speed}×
+                </button>
+              );
+            })}
+          </div>
+
+          <span className="text-xs sm:text-sm font-bold tracking-wide ml-1" style={{ fontFamily: 'var(--font-mono)', color: 'var(--cyan)' }}>
+            {getVoyageClock()}
+          </span>
         </div>
 
-        <span className="text-sm font-bold tracking-wide ml-1" style={{ fontFamily: 'var(--font-mono)', color: 'var(--cyan)' }}>
-          {getVoyageClock()}
-        </span>
-
-        <span className="text-xs flex-1 text-right truncate font-medium flex items-center justify-end gap-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+        <span className="text-xs flex-1 text-left sm:text-right truncate font-medium flex items-center justify-start sm:justify-end gap-2 min-w-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
           {directionLabel && (
             <span
               className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0"

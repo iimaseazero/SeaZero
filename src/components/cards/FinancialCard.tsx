@@ -264,12 +264,12 @@ export default function FinancialCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
-      className="glass-card p-6"
+      className="glass-card p-4 sm:p-6"
     >
       {/* Card header */}
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--amber)' }} />
-        <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+        <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
           Financial — 10-Year TCO Comparison
         </h3>
       </div>
@@ -278,7 +278,7 @@ export default function FinancialCard() {
       <motion.div
         initial={{ opacity: 0, scale: 0.98 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="rounded-xl px-5 py-4 mb-5"
+        className="rounded-xl px-4 sm:px-5 py-3.5 sm:py-4 mb-5"
         style={{
           background: evSaves
             ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(6, 182, 212, 0.06) 100%)'
@@ -287,19 +287,19 @@ export default function FinancialCard() {
         }}
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{
             background: evSaves ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)',
           }}>
             {evSaves
-              ? <TrendingDown size={20} style={{ color: 'var(--green)' }} />
-              : <TrendingUp size={20} style={{ color: 'var(--red)' }} />
+              ? <TrendingDown size={18} style={{ color: 'var(--green)' }} />
+              : <TrendingUp size={18} style={{ color: 'var(--red)' }} />
             }
           </div>
           <div>
-            <p className="text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: evSaves ? 'var(--green)' : 'var(--red)' }}>
+            <p className="text-base sm:text-lg font-bold" style={{ fontFamily: 'var(--font-display)', color: evSaves ? 'var(--green)' : 'var(--red)' }}>
               EV is {formatM(absGap)} {evSaves ? 'cheaper' : 'more expensive'} than ICE over 10 years
             </p>
-            <p className="text-xs mt-0.5" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
+            <p className="text-[11px] sm:text-xs mt-0.5" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
               Discounted at {(config.discountRate * 100).toFixed(0)}% · {economics.voyagesPerYear} {voyageWord}/year · NPV gap: {formatMSigned(scaledNpvGap)}
             </p>
           </div>
@@ -366,13 +366,13 @@ export default function FinancialCard() {
             <BarChart
               data={waterfallData}
               layout="vertical"
-              margin={{ top: 4, right: 20, left: 10, bottom: 4 }}
+              margin={{ top: 4, right: 15, left: 0, bottom: 4 }}
               barCategoryGap="18%"
             >
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.06)" horizontal={false} />
               <XAxis
                 type="number"
-                tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
+                tick={{ fontSize: 9, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
                 axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
                 tickLine={false}
                 tickFormatter={(v: number) => `${v > 0 ? '+' : ''}$${v}M`}
@@ -380,10 +380,10 @@ export default function FinancialCard() {
               <YAxis
                 type="category"
                 dataKey="category"
-                tick={{ fontSize: 10, fill: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
+                tick={{ fontSize: 9, fill: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
                 axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
                 tickLine={false}
-                width={110}
+                width={85}
               />
               <Tooltip content={<WaterfallTooltip />} />
               <ReferenceLine x={0} stroke="rgba(148,163,184,0.15)" />

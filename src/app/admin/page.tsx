@@ -12,20 +12,20 @@ export default function AdminPage() {
     <main
       className="flex-1 overflow-y-auto"
     >
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-6 sm:space-y-8">
         {/* Page header */}
         <motion.div
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <h1
-            className="text-2xl font-bold uppercase tracking-wider mb-1"
+            className="text-xl sm:text-2xl font-bold uppercase tracking-wider mb-1"
             style={{ fontFamily: 'var(--font-display)', color: 'var(--text-primary)' }}
           >
             Admin Console
           </h1>
           <p
-            className="text-sm"
+            className="text-xs sm:text-sm"
             style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}
           >
             Manage routes, ports, and competition teams
@@ -41,7 +41,7 @@ export default function AdminPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.03 }}
-              className="glass-card p-6"
+              className="glass-card p-4 sm:p-6"
             >
               <RouteSelector />
             </motion.section>
@@ -51,7 +51,7 @@ export default function AdminPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.08 }}
-              className="glass-card p-6"
+              className="glass-card p-4 sm:p-6"
             >
               <div className="flex items-center gap-2.5 mb-5">
                 <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--cyan)' }} />
@@ -67,7 +67,7 @@ export default function AdminPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.18 }}
-              className="glass-card p-6"
+              className="glass-card p-4 sm:p-6"
             >
               <TeamManager />
             </motion.section>
@@ -78,7 +78,7 @@ export default function AdminPage() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card p-6"
+            className="glass-card p-4 sm:p-6"
           >
             <div className="flex items-center gap-2.5 mb-5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--amber)' }} />
@@ -95,7 +95,7 @@ export default function AdminPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="glass-card p-6"
+          className="glass-card p-4 sm:p-6"
         >
           <div className="flex items-center gap-2.5 mb-4">
             <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--steel)' }} />
@@ -103,41 +103,43 @@ export default function AdminPage() {
               Excel Format Guide
             </h2>
           </div>
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--card-border)' }}>
-            <div
-              className="grid px-4 py-2"
-              style={{
-                gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
-                background: 'var(--glass-strong)',
-                borderBottom: '1px solid var(--border)',
-              }}
-            >
-              {['name', 'lat', 'lng', 'gridTier', 'portStayMinutes', 'distanceToNextKm'].map((h) => (
-                <span key={h} className="text-[11px] font-bold" style={{ color: 'var(--cyan)', fontFamily: 'var(--font-mono)' }}>
-                  {h}
-                </span>
-              ))}
-            </div>
-            {[
-              ['Bergen', '60.391', '5.322', 'strong', '0', '163'],
-              ['Florø', '61.599', '5.032', 'weak', '15', '52'],
-              ['Måløy', '61.936', '5.113', 'weak', '15', ''],
-            ].map((row, i) => (
+          <div className="rounded-xl overflow-x-auto" style={{ border: '1px solid var(--card-border)' }}>
+            <div className="min-w-[550px]">
               <div
-                key={i}
-                className="grid px-4 py-1.5"
+                className="grid px-4 py-2"
                 style={{
                   gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
-                  borderBottom: '1px solid var(--border-subtle)',
+                  background: 'var(--glass-strong)',
+                  borderBottom: '1px solid var(--border)',
                 }}
               >
-                {row.map((cell, j) => (
-                  <span key={j} className="text-xs" style={{ color: cell ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                    {cell || '(auto)'}
+                {['name', 'lat', 'lng', 'gridTier', 'portStayMinutes', 'distanceToNextKm'].map((h) => (
+                  <span key={h} className="text-[11px] font-bold" style={{ color: 'var(--cyan)', fontFamily: 'var(--font-mono)' }}>
+                    {h}
                   </span>
                 ))}
               </div>
-            ))}
+              {[
+                ['Bergen', '60.391', '5.322', 'strong', '0', '163'],
+                ['Florø', '61.599', '5.032', 'weak', '15', '52'],
+                ['Måløy', '61.936', '5.113', 'weak', '15', ''],
+              ].map((row, i) => (
+                <div
+                  key={i}
+                  className="grid px-4 py-1.5"
+                  style={{
+                    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr',
+                    borderBottom: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  {row.map((cell, j) => (
+                    <span key={j} className="text-xs" style={{ color: cell ? 'var(--text-secondary)' : 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                      {cell || '(auto)'}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
           <p className="text-xs mt-3 flex items-start gap-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
             <Lightbulb size={14} className="flex-shrink-0 text-cyan-400 mt-0.5" />

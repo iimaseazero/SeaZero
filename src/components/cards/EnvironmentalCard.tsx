@@ -161,11 +161,11 @@ export default function EnvironmentalCard() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
-      className="glass-card p-6"
+      className="glass-card p-4 sm:p-6"
     >
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--green)' }} />
-        <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+        <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
           Environmental — CO₂ Emissions & Abatement Cost
         </h3>
       </div>
@@ -208,7 +208,7 @@ export default function EnvironmentalCard() {
       </div>
 
       {/* Stat tiles — scale during playback */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-6">
         <StatTile
           icon={<Zap size={16} />}
           label={`CO₂ / ${voyageWord} (EV)`}
