@@ -1,8 +1,9 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { Trophy } from 'lucide-react';
+import { Trophy, Download } from 'lucide-react';
 import { useLeaderboard } from '@/store/useLocalCollections';
+import { downloadTeamReport } from '@/utils/generateTeamReport';
 
 function formatM(val: number): string {
   if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
@@ -40,12 +41,12 @@ export default function Leaderboard() {
       <div
         className="grid items-center px-5 py-2.5 rounded-xl"
         style={{
-          gridTemplateColumns: '40px 1fr 100px 100px 100px 100px 90px',
+          gridTemplateColumns: '40px 1fr 90px 80px 90px 90px 70px 110px',
           background: 'var(--glass-strong)',
           border: '1px solid var(--border)',
         }}
       >
-        {['Rank', 'Team', 'Score', 'Feasible', 'NPV Gap', 'CO₂ (10yr)', 'Dead Zones'].map((h) => (
+        {['Rank', 'Team', 'Score', 'Feasible', 'NPV Gap', 'CO₂ (10yr)', 'Dead Zones', 'Report'].map((h) => (
           <span key={h} className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
             {h}
           </span>
@@ -66,7 +67,7 @@ export default function Leaderboard() {
               transition={{ delay: rank * 0.05 }}
               className="grid items-center px-5 py-3.5 rounded-xl transition-all"
               style={{
-                gridTemplateColumns: '40px 1fr 100px 100px 100px 100px 90px',
+                gridTemplateColumns: '40px 1fr 90px 80px 90px 90px 70px 110px',
                 background: isTop ? 'rgba(56, 217, 200, 0.04)' : 'var(--glass-strong)',
                 border: `1px solid ${isTop ? 'rgba(56, 217, 200, 0.15)' : 'var(--card-border)'}`,
                 boxShadow: isTop ? '0 0 20px rgba(56, 217, 200, 0.05)' : 'none',
@@ -162,6 +163,22 @@ export default function Leaderboard() {
               >
                 {sub.simResult.deadZoneCount}
               </span>
+
+              {/* Download Report Button */}
+              <button
+                onClick={() => downloadTeamReport(sub)}
+                title="Download Team Report"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--cyan)',
+                  background: 'var(--cyan-dim)',
+                  border: '1px solid rgba(6, 182, 212, 0.2)',
+                }}
+              >
+                <Download size={13} />
+                Report
+              </button>
             </motion.div>
           );
         })}
