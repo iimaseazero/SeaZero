@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import ExcelUploader from '@/components/admin/ExcelUploader';
 import PortTable from '@/components/admin/PortTable';
 import TeamManager from '@/components/admin/TeamManager';
+import RouteSelector from '@/components/admin/RouteSelector';
 import { Lightbulb } from 'lucide-react';
 
 export default function AdminPage() {
@@ -35,11 +36,21 @@ export default function AdminPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left column — Route Management */}
           <div className="space-y-6">
+            {/* Pre-built route selector */}
+            <motion.section
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.03 }}
+              className="glass-card p-6"
+            >
+              <RouteSelector />
+            </motion.section>
+
             {/* Upload section */}
             <motion.section
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 }}
+              transition={{ delay: 0.08 }}
               className="glass-card p-6"
             >
               <div className="flex items-center gap-2.5 mb-5">
@@ -55,7 +66,7 @@ export default function AdminPage() {
             <motion.section
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 }}
+              transition={{ delay: 0.18 }}
               className="glass-card p-6"
             >
               <TeamManager />
