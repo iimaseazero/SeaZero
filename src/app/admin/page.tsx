@@ -1,13 +1,36 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ExcelUploader from '@/components/admin/ExcelUploader';
 import PortTable from '@/components/admin/PortTable';
 import TeamManager from '@/components/admin/TeamManager';
 import RouteSelector from '@/components/admin/RouteSelector';
 import { Lightbulb } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function AdminPage() {
+  const { isAdmin, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      router.replace('/');
+    }
+  }, [isAdmin, loading, router]);
+
+  // Show nothing while checking auth (proxy handles the actual protection)
+  if (loading || !isAdmin) {
+    return (
+      <main className="flex-1 flex items-center justify-center">
+        <div className="text-sm" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+          Verifying access…
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main
       className="flex-1 overflow-y-auto"
