@@ -3,14 +3,16 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, Settings, Trophy, Menu, X } from 'lucide-react';
+import { Activity, Settings, Trophy, Menu, X, LogOut } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSimStore } from '@/store/useSimStore';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { logout } from '@/app/actions/auth';
 
-const NAV_ITEMS = [
-  { href: '/', label: 'Simulator', Icon: Activity },
-  { href: '/admin', label: 'Admin', Icon: Settings },
-  { href: '/compete', label: 'Compete', Icon: Trophy },
+const ALL_NAV_ITEMS = [
+  { href: '/', label: 'Simulator', Icon: Activity, adminOnly: false },
+  { href: '/admin', label: 'Admin', Icon: Settings, adminOnly: true },
+  { href: '/compete', label: 'Compete', Icon: Trophy, adminOnly: false },
 ];
 
 function IssuesBadge() {
@@ -43,8 +45,14 @@ export default function NavBar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { routeName, simResult } = useSimStore();
+  const { user, isAdmin } = useAuth();
   const totalDistance = Math.round(simResult.totalDistanceKm);
   const isRoundtrip = simResult.voyageMode === 'roundtrip';
+
+  // Filter nav items: hide Admin link for non-admin users
+  const navItems = ALL_NAV_ITEMS.filter(
+    (item) => !item.adminOnly || isAdmin,
+  );
 
   // Close mobile menu when pathname changes
   useEffect(() => {
@@ -105,9 +113,9 @@ export default function NavBar() {
           <IssuesBadge />
         </div>
 
-        {/* Right: Nav Links */}
+        {/* Right: Nav Links + Logout */}
         <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -132,6 +140,41 @@ export default function NavBar() {
               </Link>
             );
           })}
+
+          {/* Separator + Logout */}
+          {user && (
+            <>
+              <span
+                className="w-px h-5 mx-1"
+                style={{ background: 'var(--border)' }}
+              />
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    color: 'var(--text-muted)',
+                    background: 'transparent',
+                    border: '1px solid transparent',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = 'var(--red)';
+                    e.currentTarget.style.background = 'var(--red-dim)';
+                    e.currentTarget.style.borderColor = 'rgba(239, 68, 68, 0.2)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = 'var(--text-muted)';
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.borderColor = 'transparent';
+                  }}
+                >
+                  <LogOut size={14} />
+                  Logout
+                </button>
+              </form>
+            </>
+          )}
         </div>
 
         {/* Mobile menu toggle button */}
@@ -165,7 +208,7 @@ export default function NavBar() {
             <IssuesBadge />
           </div>
 
-          {NAV_ITEMS.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
@@ -193,9 +236,29 @@ export default function NavBar() {
               </Link>
             );
           })}
+
+          {/* Mobile Logout */}
+          {user && (
+            <form action={logout}>
+              <button
+                type="submit"
+                className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--red)',
+                  background: 'var(--red-dim)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                }}
+              >
+                <div className="flex items-center gap-2.5">
+                  <LogOut size={16} />
+                  <span>Logout</span>
+                </div>
+              </button>
+            </form>
+          )}
         </div>
       )}
     </nav>
   );
 }
-
