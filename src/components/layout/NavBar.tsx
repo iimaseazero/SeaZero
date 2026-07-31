@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, Settings, Trophy, Menu, X, LogOut, Mail } from 'lucide-react';
+import { Activity, Settings, Trophy, Menu, X, LogOut, Mail, Sun, Moon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSimStore } from '@/store/useSimStore';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useTheme } from '@/components/layout/ThemeProvider';
 import { logout } from '@/app/actions/auth';
 
 const ALL_NAV_ITEMS = [
@@ -46,6 +47,7 @@ export default function NavBar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { routeName, simResult } = useSimStore();
   const { user, isAdmin } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const totalDistance = Math.round(simResult.totalDistanceKm);
   const isRoundtrip = simResult.voyageMode === 'roundtrip';
 
@@ -140,6 +142,31 @@ export default function NavBar() {
               </Link>
             );
           })}
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg transition-all cursor-pointer"
+            style={{
+              color: 'var(--text-muted)',
+              background: 'transparent',
+              border: '1px solid transparent',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.color = 'var(--amber)';
+              e.currentTarget.style.background = 'var(--amber-dim)';
+              e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.color = 'var(--text-muted)';
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = 'transparent';
+            }}
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+          </button>
 
           {/* Separator + User Email + Logout */}
           {user && (
@@ -246,6 +273,23 @@ export default function NavBar() {
               </Link>
             );
           })}
+
+          {/* Mobile Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer"
+            style={{
+              fontFamily: 'var(--font-display)',
+              color: 'var(--text-secondary)',
+              background: 'var(--glass-strong)',
+              border: '1px solid var(--card-border)',
+            }}
+          >
+            <div className="flex items-center gap-2.5">
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </div>
+          </button>
 
           {/* Mobile User Email + Logout */}
           {user && (

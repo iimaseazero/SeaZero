@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AuthProvider from "@/components/auth/AuthProvider";
 import LayoutShell from "@/components/layout/LayoutShell";
+import ThemeProvider from "@/components/layout/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Sea Zero — Coastal Route Electrification Simulator",
@@ -18,11 +19,14 @@ export default function RootLayout({
 
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex flex-col bg-[#0B1521] text-[#C8D6E5]">
-        <AuthProvider adminEmail={adminEmail}>
-          <LayoutShell>{children}</LayoutShell>
-        </AuthProvider>
+      <body className="min-h-full flex flex-col" style={{ background: 'var(--background)', color: 'var(--foreground)' }}>
+        <ThemeProvider>
+          <AuthProvider adminEmail={adminEmail}>
+            <LayoutShell>{children}</LayoutShell>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
 }
+

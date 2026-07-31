@@ -1,15 +1,49 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
-import { MapContainer, TileLayer, Polyline, CircleMarker, Marker, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, Polyline, CircleMarker, Marker, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { ARCTIC_CIRCLE_LAT } from '@/data/ports';
 import { useSimStore } from '@/store/useSimStore';
+import { useTheme } from '@/components/layout/ThemeProvider';
 import PlaybackBar from './PlaybackBar';
 import { PortConfig, LegResult } from '@/engine/types';
 import { Port } from '@/data/ports';
 import { Zap, Battery } from 'lucide-react';
+
+const TILE_URLS = {
+  dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+  light: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+} as const;
+
+// ─── Theme-aware tile layer — swaps URL when theme toggles ───
+function ThemeTileLayer() {
+  const { theme } = useTheme();
+  const map = useMap();
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
+
+  useEffect(() => {
+    // Remove the previous tile layer if it exists
+    if (tileLayerRef.current) {
+      map.removeLayer(tileLayerRef.current);
+    }
+
+    const newLayer = L.tileLayer(TILE_URLS[theme], {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+    });
+    newLayer.addTo(map);
+    tileLayerRef.current = newLayer;
+
+    return () => {
+      if (tileLayerRef.current) {
+        map.removeLayer(tileLayerRef.current);
+      }
+    };
+  }, [theme, map]);
+
+  return null;
+}
 
 // ─── Arctic Circle line (static, never re-renders) ───
 const ArcticCircleLine = memo(function ArcticCircleLine() {
@@ -410,10 +444,7 @@ export default function RouteMap() {
           attributionControl={true}
         >
           <MapResizeHandler />
-          <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-          />
+          <ThemeTileLayer />
 
           <ArcticCircleLine />
 
