@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, Settings, Trophy, Menu, X, LogOut } from 'lucide-react';
+import { Activity, Settings, Trophy, Menu, X, LogOut, Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useSimStore } from '@/store/useSimStore';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -141,13 +141,23 @@ export default function NavBar() {
             );
           })}
 
-          {/* Separator + Logout */}
+          {/* Separator + User Email + Logout */}
           {user && (
             <>
               <span
                 className="w-px h-5 mx-1"
                 style={{ background: 'var(--border)' }}
               />
+              <span
+                className="text-[11px] font-medium truncate max-w-[160px]"
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  color: 'var(--text-muted)',
+                }}
+                title={user.email ?? ''}
+              >
+                {user.email}
+              </span>
               <form action={logout}>
                 <button
                   type="submit"
@@ -237,8 +247,21 @@ export default function NavBar() {
             );
           })}
 
-          {/* Mobile Logout */}
+          {/* Mobile User Email + Logout */}
           {user && (
+            <>
+            <div
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-[11px] font-medium truncate"
+              style={{
+                fontFamily: 'var(--font-display)',
+                color: 'var(--text-muted)',
+                background: 'var(--glass-strong)',
+                border: '1px solid var(--card-border)',
+              }}
+            >
+              <Mail size={14} style={{ flexShrink: 0 }} />
+              <span className="truncate">{user.email}</span>
+            </div>
             <form action={logout}>
               <button
                 type="submit"
@@ -256,6 +279,7 @@ export default function NavBar() {
                 </div>
               </button>
             </form>
+            </>
           )}
         </div>
       )}
