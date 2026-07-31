@@ -50,6 +50,50 @@
   --font-sans: 'Inter', system-ui, sans-serif;
 }
 
+/* ─── Light theme overrides ─── */
+:root[data-theme="light"] {
+  --background: #F8FAFC; /* slate-50 */
+  --foreground: #0F172A; /* slate-900 */
+  --navy: #F1F5F9; /* slate-100 */
+  --navy-light: #E2E8F0; /* slate-200 */
+  --navy-medium: #CBD5E1; /* slate-300 */
+  --navy-surface: #E2E8F0;
+
+  /* ─── Primary accent (slightly deepened for contrast on light) ─── */
+  --cyan: #0891B2; /* cyan-600 */
+  --cyan-dim: rgba(8, 145, 178, 0.12);
+  --cyan-glow: rgba(8, 145, 178, 0.06);
+
+  /* ─── Secondary ─── */
+  --steel: #2563EB; /* blue-600 */
+  --steel-dim: #1D4ED8;
+  --steel-surface: rgba(37, 99, 235, 0.06);
+
+  /* ─── Status ─── */
+  --green: #059669; /* emerald-600 */
+  --green-dim: rgba(5, 150, 105, 0.10);
+
+  --amber: #D97706; /* amber-600 */
+  --amber-dim: rgba(217, 119, 6, 0.10);
+
+  --red: #DC2626; /* red-600 */
+  --red-dim: rgba(220, 38, 38, 0.08);
+
+  /* ─── Text hierarchy ─── */
+  --text-primary: #0F172A; /* slate-900 */
+  --text-secondary: #475569; /* slate-600 */
+  --text-muted: #94A3B8; /* slate-400 */
+
+  /* ─── Borders & surfaces ─── */
+  --border: #E2E8F0; /* slate-200 */
+  --border-subtle: #F1F5F9; /* slate-100 */
+  --card-bg: #FFFFFF;
+  --card-border: #E2E8F0; /* slate-200 */
+  --card-hover-border: #CBD5E1; /* slate-300 */
+  --glass: #F1F5F9; /* slate-100 */
+  --glass-strong: #E2E8F0; /* slate-200 */
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -224,3 +268,32 @@ input[type="range"]::-moz-range-thumb {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
+
+/* ─── Light theme element overrides ─── */
+:root[data-theme="light"] .leaflet-control-attribution {
+  background: rgba(241, 245, 249, 0.9) !important;
+}
+
+:root[data-theme="light"] .dark-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
+}
+
+:root[data-theme="light"] .recharts-cartesian-grid-horizontal line,
+:root[data-theme="light"] .recharts-cartesian-grid-vertical line {
+  stroke: rgba(148, 163, 184, 0.15) !important;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.2);
+}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.35);
+}
+
+/* Smooth transition when toggling themes */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
