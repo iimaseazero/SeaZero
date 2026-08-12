@@ -7,6 +7,7 @@ import ExcelUploader from '@/components/admin/ExcelUploader';
 import PortTable from '@/components/admin/PortTable';
 import TeamManager from '@/components/admin/TeamManager';
 import RouteSelector from '@/components/admin/RouteSelector';
+import FreezeManager from '@/components/admin/FreezeManager';
 import { Lightbulb } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -93,6 +94,16 @@ export default function AdminPage() {
               className="glass-card p-4 sm:p-6"
             >
               <TeamManager />
+            </motion.section>
+
+            {/* Freeze Controls */}
+            <motion.section
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.22 }}
+              className="glass-card p-4 sm:p-6"
+            >
+              <FreezeManager />
             </motion.section>
           </div>
 

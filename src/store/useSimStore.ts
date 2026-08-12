@@ -41,6 +41,11 @@ interface SimStore {
   economics: EconomicsResult;
   emissions: EmissionsResult;
 
+  // Frozen controls (admin-locked)
+  frozenControls: Record<string, unknown>;
+  isFrozen: (key: string) => boolean;
+  loadFrozenControls: () => Promise<void>;
+
   // Playback
   playback: PlaybackState;
 
@@ -99,6 +104,37 @@ export const useSimStore = create<SimStore>((set, get) => ({
   config: DEFAULT_CONFIG,
   ...initialResults,
 
+  // Frozen controls
+  frozenControls: {},
+  isFrozen: (key: string) => key in get().frozenControls,
+  loadFrozenControls: async () => {
+    try {
+      const res = await fetch('/api/frozen-controls');
+      if (!res.ok) return;
+      const data = await res.json();
+      const locked: Record<string, unknown> = data.lockedKeys ?? {};
+      set((s) => {
+        // Apply frozen values to the current config
+        const config = { ...s.config };
+        for (const [key, value] of Object.entries(locked)) {
+          if (key === 'portConfigs') {
+            // portConfigs is a special case — frozen as a whole
+            (config as Record<string, unknown>)[key] = value;
+          } else if (key in config) {
+            (config as Record<string, unknown>)[key] = value;
+          }
+        }
+        return {
+          frozenControls: locked,
+          config,
+          ...recompute(config, s.activePorts, s.activeLegs),
+        };
+      });
+    } catch {
+      // Silently fail — frozen controls are a non-critical feature
+    }
+  },
+
   playback: {
     isPlaying: false,
     currentLegIndex: 0,
@@ -110,6 +146,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setVesselType: (type) => {
+    if (get().isFrozen('vesselType')) return;
     set((s) => {
       const config = { ...s.config, vesselType: type };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -117,6 +154,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setVoyageMode: (mode) => {
+    if (get().isFrozen('voyageMode')) return;
     set((s) => {
       const config = { ...s.config, voyageMode: mode };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -124,6 +162,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setBatteryMWh: (mwh) => {
+    if (get().isFrozen('batteryMWh')) return;
     set((s) => {
       const config = { ...s.config, batteryMWh: mwh };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -131,6 +170,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setSpeedKnots: (kn) => {
+    if (get().isFrozen('speedKnots')) return;
     set((s) => {
       const config = { ...s.config, speedKnots: kn };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -138,6 +178,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setCargoLoad: (pct) => {
+    if (get().isFrozen('cargoLoadPercent')) return;
     set((s) => {
       const config = { ...s.config, cargoLoadPercent: pct };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -145,6 +186,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setEfficiencyPackage: (on) => {
+    if (get().isFrozen('efficiencyPackage')) return;
     set((s) => {
       const config = { ...s.config, efficiencyPackage: on };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -152,6 +194,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setReservePercent: (pct) => {
+    if (get().isFrozen('reservePercent')) return;
     set((s) => {
       const config = { ...s.config, reservePercent: pct };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -159,6 +202,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setCubeExponent: (n) => {
+    if (get().isFrozen('cubeExponent')) return;
     set((s) => {
       const config = { ...s.config, cubeExponent: n };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -166,6 +210,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setSeaMarginPercent: (pct) => {
+    if (get().isFrozen('seaMarginPercent')) return;
     set((s) => {
       const config = { ...s.config, seaMarginPercent: pct };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -173,6 +218,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setConnectionOverheadMinutes: (min) => {
+    if (get().isFrozen('connectionOverheadMinutes')) return;
     set((s) => {
       const config = { ...s.config, connectionOverheadMinutes: min };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -180,6 +226,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setBatteryEfficiency: (eff) => {
+    if (get().isFrozen('batteryEfficiency')) return;
     set((s) => {
       const config = { ...s.config, batteryEfficiency: eff };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -187,6 +234,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setCarbonPrice: (usdPerTon) => {
+    if (get().isFrozen('carbonPricePerTon')) return;
     set((s) => {
       const config = { ...s.config, carbonPricePerTon: usdPerTon };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -194,6 +242,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setScheduleTolerance: (hours) => {
+    if (get().isFrozen('scheduleToleranceHours')) return;
     set((s) => {
       const config = { ...s.config, scheduleToleranceHours: hours };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -201,6 +250,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setChargePower: (mw) => {
+    if (get().isFrozen('chargePowerMW')) return;
     set((s) => {
       const config = { ...s.config, chargePowerMW: mw };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -208,6 +258,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setDiscountRate: (r) => {
+    if (get().isFrozen('discountRate')) return;
     set((s) => {
       const config = { ...s.config, discountRate: r };
       return { config, ...recompute(config, s.activePorts, s.activeLegs) };
@@ -215,6 +266,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   toggleCharger: (portId) => {
+    if (get().isFrozen('portConfigs')) return;
     set((s) => {
       const portConfigs = s.config.portConfigs.map((p) =>
         p.portId === portId ? { ...p, hasCharger: !p.hasCharger } : p
@@ -225,6 +277,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   toggleBufferBattery: (portId) => {
+    if (get().isFrozen('portConfigs')) return;
     set((s) => {
       const portConfigs = s.config.portConfigs.map((p) =>
         p.portId === portId ? { ...p, hasBufferBattery: !p.hasBufferBattery } : p
@@ -235,6 +288,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
   },
 
   setPortGridTier: (portId, tier) => {
+    if (get().isFrozen('portConfigs')) return;
     set((s) => {
       const portConfigs = s.config.portConfigs.map((p) =>
         p.portId === portId ? { ...p, gridTier: tier } : p
@@ -246,6 +300,8 @@ export const useSimStore = create<SimStore>((set, get) => ({
 
   applyPreset: (presetId) => {
     const s = get();
+    // Block presets when any controls are frozen
+    if (Object.keys(s.frozenControls).length > 0) return;
     const preset = s.activePresets.find((p) => p.id === presetId);
     if (!preset) return;
     set(() => {
