@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Download } from 'lucide-react';
-import { useLeaderboard } from '@/store/useLocalCollections';
+import { useLeaderboard } from '@/store/useCollections';
 import { downloadTeamReport } from '@/utils/generateTeamReport';
 
 function formatM(val: number): string {
@@ -12,9 +12,8 @@ function formatM(val: number): string {
 }
 
 export default function Leaderboard() {
-  // Subscribes to the submission store — updates immediately on submit and on
-  // writes from other tabs, with no polling.
-  const submissions = useLeaderboard();
+  // Fetches submissions from D1 on mount
+  const { submissions } = useLeaderboard();
 
   if (submissions.length === 0) {
     return (

@@ -1,16 +1,29 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { verifyToken, AUTH_COOKIE } from '@/lib/auth';
 
 /**
- * Returns the Supabase auth tokens stored in HTTP-only cookies.
- * The browser Supabase client can't read HTTP-only cookies directly,
- * so the AuthProvider calls this endpoint after mount to hydrate
- * its session from the server-side cookie-based auth.
+ * Returns the authenticated user's info decoded from the JWT cookie.
+ * The AuthProvider calls this endpoint after mount to hydrate its context.
  */
 export async function GET() {
   const cookieStore = await cookies();
-  const accessToken = cookieStore.get('sb-access-token')?.value ?? null;
-  const refreshToken = cookieStore.get('sb-refresh-token')?.value ?? null;
+  const token = cookieStore.get(AUTH_COOKIE)?.value;
 
-  return NextResponse.json({ accessToken, refreshToken });
+  if (!token) {
+    return NextResponse.json({ user: null });
+  }
+
+  const payload = await verifyToken(token);
+
+  if (!payload) {
+    return NextResponse.json({ user: null });
+  }
+
+  return NextResponse.json({
+    user: {
+      id: payload.userId,
+      email: payload.email,
+    },
+  });
 }

@@ -1,11 +1,15 @@
 'use server';
 
-import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+import { d1Query, d1Execute } from '@/lib/d1';
+import {
+  signToken,
+  hashPassword,
+  comparePassword,
+  AUTH_COOKIE,
+  AUTH_COOKIE_MAX_AGE,
+} from '@/lib/auth';
 
 // ─── Types ───
 
@@ -14,37 +18,28 @@ export type AuthState = {
   success?: boolean;
 } | undefined;
 
-// ─── Helpers ───
+// ─── ID Generator ───
 
-function getClient() {
-  return createClient(supabaseUrl, supabaseAnonKey);
+function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 }
 
-async function setAuthCookies(accessToken: string, refreshToken: string) {
-  const cookieStore = await cookies();
-  const maxAge = 60 * 60 * 24 * 7; // 7 days
+// ─── Cookie Helpers ───
 
-  cookieStore.set('sb-access-token', accessToken, {
+async function setAuthCookie(token: string) {
+  const cookieStore = await cookies();
+  cookieStore.set(AUTH_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge,
-  });
-
-  cookieStore.set('sb-refresh-token', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge,
+    maxAge: AUTH_COOKIE_MAX_AGE,
   });
 }
 
-async function clearAuthCookies() {
+async function clearAuthCookie() {
   const cookieStore = await cookies();
-  cookieStore.delete('sb-access-token');
-  cookieStore.delete('sb-refresh-token');
+  cookieStore.delete(AUTH_COOKIE);
 }
 
 // ─── Login ───
@@ -60,24 +55,27 @@ export async function login(
     return { error: 'Email and password are required.' };
   }
 
-  const client = getClient();
-  const { data, error } = await client.auth.signInWithPassword({
-    email,
-    password,
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  if (!data.session) {
-    return { error: 'Failed to create session.' };
-  }
-
-  await setAuthCookies(
-    data.session.access_token,
-    data.session.refresh_token,
+  // Look up user in D1
+  const users = await d1Query<{ id: string; email: string; password_hash: string }>(
+    'SELECT id, email, password_hash FROM users WHERE email = ?1 COLLATE NOCASE',
+    [email.toLowerCase()],
   );
+
+  if (users.length === 0) {
+    return { error: 'Invalid email or password.' };
+  }
+
+  const user = users[0];
+
+  // Verify password
+  const valid = await comparePassword(password, user.password_hash);
+  if (!valid) {
+    return { error: 'Invalid email or password.' };
+  }
+
+  // Sign JWT and set cookie
+  const token = await signToken(user.id, user.email);
+  await setAuthCookie(token);
 
   redirect('/');
 }
@@ -100,33 +98,28 @@ export async function register(
     return { error: 'Password must be at least 6 characters.' };
   }
 
-  const client = getClient();
-  const { data, error } = await client.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { display_name: name || undefined },
-    },
-  });
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  // Supabase may require email confirmation — in that case, session is null
-  if (!data.session) {
-    // If email confirmation is disabled, this shouldn't happen.
-    // But if it does, show a helpful message.
-    return {
-      success: true,
-      error: undefined,
-    };
-  }
-
-  await setAuthCookies(
-    data.session.access_token,
-    data.session.refresh_token,
+  // Check if user already exists
+  const existing = await d1Query<{ id: string }>(
+    'SELECT id FROM users WHERE email = ?1 COLLATE NOCASE',
+    [email.toLowerCase()],
   );
+
+  if (existing.length > 0) {
+    return { error: 'An account with this email already exists.' };
+  }
+
+  // Hash password and create user
+  const id = generateId();
+  const passwordHash = await hashPassword(password);
+
+  await d1Execute(
+    'INSERT INTO users (id, email, password_hash, display_name) VALUES (?1, ?2, ?3, ?4)',
+    [id, email.toLowerCase(), passwordHash, name || null],
+  );
+
+  // Sign JWT and set cookie
+  const token = await signToken(id, email.toLowerCase());
+  await setAuthCookie(token);
 
   redirect('/');
 }
@@ -134,6 +127,6 @@ export async function register(
 // ─── Logout ───
 
 export async function logout() {
-  await clearAuthCookies();
+  await clearAuthCookie();
   redirect('/login');
 }

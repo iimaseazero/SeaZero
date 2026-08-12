@@ -66,9 +66,9 @@ interface SimStore {
   applyPreset: (presetId: string) => void;
 
   // Route management
-  loadRoute: (ports: Port[], legs: Leg[], routeName: string) => void;
-  resetToDefaultRoute: () => void;
-  initFromSavedRoute: () => void;
+  loadRoute: (ports: Port[], legs: Leg[], routeName: string) => Promise<void>;
+  resetToDefaultRoute: () => Promise<void>;
+  initFromSavedRoute: () => Promise<void>;
 
   // Playback actions
   setPlaying: (playing: boolean) => void;
@@ -258,7 +258,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
     });
   },
 
-  loadRoute: (ports, legs, routeName) => {
+  loadRoute: async (ports, legs, routeName) => {
     const presets = generatePresetsForRoute(ports);
     const defaultConfig = presets[0].config;
     const route: CustomRoute = {
@@ -267,7 +267,7 @@ export const useSimStore = create<SimStore>((set, get) => ({
       routeName,
       uploadedAt: Date.now(),
     };
-    saveCustomRoute(route);
+    await saveCustomRoute(route);
 
     set(() => ({
       activePorts: ports,
@@ -281,8 +281,8 @@ export const useSimStore = create<SimStore>((set, get) => ({
     }));
   },
 
-  resetToDefaultRoute: () => {
-    clearCustomRoute();
+  resetToDefaultRoute: async () => {
+    await clearCustomRoute();
     set(() => ({
       activePorts: DEFAULT_PORTS,
       activeLegs: DEFAULT_LEGS,
@@ -295,8 +295,8 @@ export const useSimStore = create<SimStore>((set, get) => ({
     }));
   },
 
-  initFromSavedRoute: () => {
-    const saved = loadCustomRoute();
+  initFromSavedRoute: async () => {
+    const saved = await loadCustomRoute();
     if (saved) {
       const presets = generatePresetsForRoute(saved.ports);
       const defaultConfig = presets[0].config;

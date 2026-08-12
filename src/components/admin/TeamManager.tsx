@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, X, Flag, Plus } from 'lucide-react';
 import { addTeam, deleteTeam } from '@/store/persistence';
-import { useTeams } from '@/store/useLocalCollections';
+import { useTeams } from '@/store/useCollections';
 
 const TEAM_COLORS = [
   '#38D9C8', '#4A90CC', '#F59E0B', '#EF4444', '#8B5CF6',
@@ -12,16 +12,16 @@ const TEAM_COLORS = [
 ];
 
 export default function TeamManager() {
-  // Teams live in localStorage; the hook keeps this in sync across tabs.
-  const teams = useTeams();
+  const { teams, refreshTeams } = useTeams();
   const [newName, setNewName] = useState('');
   const [selectedColor, setSelectedColor] = useState(TEAM_COLORS[0]);
   const [showForm, setShowForm] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     const name = newName.trim();
     if (!name) return;
-    addTeam(name, selectedColor);
+    await addTeam(name, selectedColor);
+    refreshTeams();
     setNewName('');
     setShowForm(false);
     // Cycle to the next unused colour.
@@ -29,8 +29,9 @@ export default function TeamManager() {
     setSelectedColor(TEAM_COLORS.find((c) => !usedColors.has(c)) || TEAM_COLORS[0]);
   };
 
-  const handleDelete = (teamId: string) => {
-    deleteTeam(teamId);
+  const handleDelete = async (teamId: string) => {
+    await deleteTeam(teamId);
+    refreshTeams();
   };
 
   return (

@@ -7,11 +7,14 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { getBrowserClient } from '@/lib/supabase';
-import type { User } from '@supabase/supabase-js';
+
+interface AuthUser {
+  id: string;
+  email: string;
+}
 
 interface AuthContextValue {
-  user: User | null;
+  user: AuthUser | null;
   isAdmin: boolean;
   loading: boolean;
 }
@@ -35,50 +38,25 @@ export default function AuthProvider({
   children,
   adminEmail,
 }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = getBrowserClient();
-
-    // The login server action stores tokens in HTTP-only cookies,
-    // which the browser Supabase client can't access from localStorage.
-    // Fetch the tokens from our API route and hydrate the client session.
-    async function hydrateSession() {
+    async function loadSession() {
       try {
         const res = await fetch('/api/auth/session');
         if (res.ok) {
-          const { accessToken, refreshToken } = await res.json();
-          if (accessToken && refreshToken) {
-            await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken,
-            });
-            // setSession triggers onAuthStateChange, which will update user
-            return;
-          }
+          const data = await res.json();
+          setUser(data.user ?? null);
         }
       } catch {
-        // Ignore fetch errors — fall through to getSession
+        // Ignore fetch errors
+      } finally {
+        setLoading(false);
       }
-
-      // Fallback: try the browser client's own session (e.g. if OAuth was used)
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
     }
 
-    hydrateSession();
-
-    // Listen for auth changes (including from setSession above)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    loadSession();
   }, []);
 
   const isAdmin =

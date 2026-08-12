@@ -26,9 +26,9 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
   // Preview score
   const preview: ScoreBreakdown = computeScore(simResult, economics, emissions);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedTeam) return;
-    addSubmission(selectedTeam, config, simResult, economics, emissions);
+    await addSubmission(selectedTeam, config, simResult, economics, emissions);
     setShowConfirm(false);
     setJustSubmitted(true);
     onSubmitted();

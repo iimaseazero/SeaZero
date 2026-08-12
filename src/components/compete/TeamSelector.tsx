@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AlertTriangle, ChevronDown, Check } from 'lucide-react';
 import { Team } from '@/store/persistence';
-import { useTeams } from '@/store/useLocalCollections';
+import { useTeams } from '@/store/useCollections';
 
 interface TeamSelectorProps {
   selectedTeam: Team | null;
@@ -11,7 +11,7 @@ interface TeamSelectorProps {
 }
 
 export default function TeamSelector({ selectedTeam, onSelect }: TeamSelectorProps) {
-  const teams = useTeams();
+  const { teams } = useTeams();
   const [isOpen, setIsOpen] = useState(false);
 
   if (teams.length === 0) {
