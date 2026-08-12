@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from 'react';
 
+import { usePathname } from 'next/navigation';
+
 interface AuthUser {
   id: string;
   email: string;
@@ -17,12 +19,14 @@ interface AuthContextValue {
   user: AuthUser | null;
   isAdmin: boolean;
   loading: boolean;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   isAdmin: false,
   loading: true,
+  refreshAuth: async () => {},
 });
 
 export function useAuth() {
@@ -40,24 +44,25 @@ export default function AuthProvider({
 }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const pathname = usePathname();
+
+  const loadSession = async () => {
+    try {
+      const res = await fetch('/api/auth/session');
+      if (res.ok) {
+        const data = await res.json();
+        setUser(data.user ?? null);
+      }
+    } catch {
+      // Ignore fetch errors
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function loadSession() {
-      try {
-        const res = await fetch('/api/auth/session');
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user ?? null);
-        }
-      } catch {
-        // Ignore fetch errors
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadSession();
-  }, []);
+  }, [pathname]);
 
   const isAdmin =
     !!user?.email &&
@@ -65,7 +70,7 @@ export default function AuthProvider({
     user.email.toLowerCase() === adminEmail.toLowerCase();
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, loading }}>
+    <AuthContext.Provider value={{ user, isAdmin, loading, refreshAuth: loadSession }}>
       {children}
     </AuthContext.Provider>
   );
