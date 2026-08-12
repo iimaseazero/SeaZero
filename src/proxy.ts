@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { verifyToken, AUTH_COOKIE } from '@/lib/auth';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const adminEmail = (process.env.ADMIN_EMAIL ?? '').toLowerCase();
 
 // Public routes that don't require authentication
@@ -17,44 +15,29 @@ export async function proxy(request: NextRequest) {
     (p) => pathname === p || pathname.startsWith(p + '/'),
   );
 
-  // Read the access token from the cookie
-  const accessToken = request.cookies.get('sb-access-token')?.value;
-  const refreshToken = request.cookies.get('sb-refresh-token')?.value;
+  // Read the JWT from the cookie
+  const token = request.cookies.get(AUTH_COOKIE)?.value;
 
   // ─── No token: redirect to login (unless already on login page) ───
-  if (!accessToken) {
+  if (!token) {
     if (isPublicPath) {
       return NextResponse.next();
     }
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // ─── Has token: verify it via Supabase ───
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  // ─── Has token: verify JWT ───
+  const payload = await verifyToken(token);
 
-  if (refreshToken) {
-    await supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-  }
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(accessToken);
-
-  if (error || !user) {
-    // Token is invalid/expired — clear cookies and redirect to login
+  if (!payload) {
+    // Token is invalid/expired — clear cookie and redirect to login
     if (isPublicPath) {
       const response = NextResponse.next();
-      response.cookies.delete('sb-access-token');
-      response.cookies.delete('sb-refresh-token');
+      response.cookies.delete(AUTH_COOKIE);
       return response;
     }
     const response = NextResponse.redirect(new URL('/login', request.url));
-    response.cookies.delete('sb-access-token');
-    response.cookies.delete('sb-refresh-token');
+    response.cookies.delete(AUTH_COOKIE);
     return response;
   }
 
@@ -65,7 +48,7 @@ export async function proxy(request: NextRequest) {
 
   // ─── Admin route protection ───
   if (pathname.startsWith('/admin')) {
-    const userEmail = (user.email ?? '').toLowerCase();
+    const userEmail = (payload.email ?? '').toLowerCase();
     if (userEmail !== adminEmail) {
       return NextResponse.redirect(new URL('/', request.url));
     }
