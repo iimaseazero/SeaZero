@@ -10,6 +10,7 @@ import FinancialCard from '@/components/cards/FinancialCard';
 import EnvironmentalCard from '@/components/cards/EnvironmentalCard';
 import HoverTag from '@/components/HoverTag';
 import { BarChart3, Sliders, Map as MapIcon } from 'lucide-react';
+import { useFrozenControls } from '@/store/useFrozenControls';
 
 // Dynamic import for Leaflet (needs browser APIs)
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), {
@@ -25,6 +26,7 @@ const RouteMap = dynamic(() => import('@/components/map/RouteMap'), {
 
 export default function Home() {
   const [mobileTab, setMobileTab] = useState<'analytics' | 'config' | 'map'>('analytics');
+  useFrozenControls();
 
   return (
     <main className="min-h-screen lg:h-screen flex flex-col overflow-y-auto lg:overflow-hidden relative">

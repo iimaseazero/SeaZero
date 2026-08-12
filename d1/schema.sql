@@ -46,3 +46,11 @@ CREATE TABLE IF NOT EXISTS custom_routes (
   route_name TEXT NOT NULL DEFAULT 'Custom Route',
   uploaded_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
 );
+
+-- ─── Admin Frozen Controls ───
+
+CREATE TABLE IF NOT EXISTS frozen_controls (
+  id INTEGER PRIMARY KEY DEFAULT 1,
+  locked_keys TEXT NOT NULL DEFAULT '{}',
+  updated_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
+);

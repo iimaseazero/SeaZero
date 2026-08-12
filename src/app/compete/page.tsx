@@ -13,6 +13,7 @@ import TeamSelector from '@/components/compete/TeamSelector';
 import SubmitPanel from '@/components/compete/SubmitPanel';
 import Leaderboard from '@/components/compete/Leaderboard';
 import { Team } from '@/store/persistence';
+import { useFrozenControls } from '@/store/useFrozenControls';
 
 const RouteMap = dynamic(() => import('@/components/map/RouteMap'), {
   ssr: false,
@@ -29,6 +30,7 @@ export default function CompetePage() {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [mobileTab, setMobileTab] = useState<'compete' | 'config' | 'map'>('compete');
+  useFrozenControls();
 
   const handleSubmitted = useCallback(() => {
     setRefreshKey((k) => k + 1);
