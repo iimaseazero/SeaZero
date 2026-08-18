@@ -9,13 +9,19 @@ const POLL_INTERVAL_MS = 30_000;
 
 export function useFrozenControls() {
   const loadFrozenControls = useSimStore((s) => s.loadFrozenControls);
+  const initFromSavedConfig = useSimStore((s) => s.initFromSavedConfig);
 
   useEffect(() => {
-    // Load immediately on mount
-    loadFrozenControls();
+    // Load user's saved config first, then apply frozen control locks
+    const init = async () => {
+      await initFromSavedConfig();
+      await loadFrozenControls();
+    };
+    init();
 
-    // Poll periodically
+    // Poll periodically for frozen control updates
     const interval = setInterval(loadFrozenControls, POLL_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [loadFrozenControls]);
+  }, [initFromSavedConfig, loadFrozenControls]);
 }
+

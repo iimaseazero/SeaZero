@@ -191,3 +191,29 @@ export async function saveCustomRoute(route: CustomRoute): Promise<void> {
 export async function clearCustomRoute(): Promise<void> {
   await fetch('/api/custom-route', { method: 'DELETE' });
 }
+
+// ─── User Config Operations (async, D1-backed) ───
+
+export async function loadUserConfig(): Promise<SimulationConfig | null> {
+  try {
+    const res = await fetch('/api/user-config');
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.config ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveUserConfig(config: SimulationConfig): Promise<void> {
+  try {
+    await fetch('/api/user-config', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ config }),
+    });
+  } catch {
+    // Silently handle offline/error saving
+  }
+}
+
