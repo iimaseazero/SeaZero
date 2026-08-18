@@ -54,3 +54,12 @@ CREATE TABLE IF NOT EXISTS frozen_controls (
   locked_keys TEXT NOT NULL DEFAULT '{}',
   updated_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
 );
+
+-- ─── User Saved Simulation Config ───
+
+CREATE TABLE IF NOT EXISTS user_configs (
+  user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  config TEXT NOT NULL,
+  updated_at INTEGER NOT NULL DEFAULT (unixepoch() * 1000)
+);
+
