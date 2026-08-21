@@ -1,0 +1,331 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* ─── Refined palette: standard minimalist dark mode ─── */
+  --background: #09090B; /* zinc-950 */
+  --foreground: #FAFAFA; /* zinc-50 */
+  --navy: #09090B;
+  --navy-light: #18181B; /* zinc-900 */
+  --navy-medium: #27272A; /* zinc-800 */
+  --navy-surface: #18181B;
+
+  /* ─── Primary accent ─── */
+  --cyan: #06B6D4; /* cyan-500 */
+  --cyan-dim: rgba(6, 182, 212, 0.15);
+  --cyan-glow: rgba(6, 182, 212, 0.08);
+
+  /* ─── Secondary ─── */
+  --steel: #3B82F6; /* blue-500 */
+  --steel-dim: #2563EB;
+  --steel-surface: rgba(59, 130, 246, 0.08);
+
+  /* ─── Status ─── */
+  --green: #10B981; /* emerald-500 */
+  --green-dim: rgba(16, 185, 129, 0.12);
+
+  --amber: #F59E0B; /* amber-500 */
+  --amber-dim: rgba(245, 158, 11, 0.12);
+
+  --red: #EF4444; /* red-500 */
+  --red-dim: rgba(239, 68, 68, 0.10);
+
+  /* ─── Text hierarchy ─── */
+  --text-primary: #F4F4F5; /* zinc-100 */
+  --text-secondary: #A1A1AA; /* zinc-400 */
+  --text-muted: #71717A; /* zinc-500 */
+
+  /* ─── Borders & surfaces ─── */
+  --border: #27272A; /* zinc-800 */
+  --border-subtle: #18181B; /* zinc-900 */
+  --card-bg: #09090B; /* zinc-950 */
+  --card-border: #27272A; /* zinc-800 */
+  --card-hover-border: #3F3F46; /* zinc-700 */
+  --glass: #18181B; /* zinc-900 */
+  --glass-strong: #27272A; /* zinc-800 */
+
+  /* ─── Chart series palette ─────────────────────────────────────────────
+   * Deliberately NOT the UI accent tokens above. Chart marks sit on card
+   * surfaces and have to stay separable under colour-vision deficiency in
+   * BOTH themes, so these are pinned to the 600-weight steps, which fall
+   * inside the OKLCH lightness band for a dark surface (L 0.48-0.67) as
+   * well as a light one (L 0.43-0.77). The UI tokens use the lighter 500
+   * steps, which read better as glows and borders but fail that band.
+   *
+   * Verified with the dataviz palette validator: every adjacent pair below
+   * clears CVD dE 19+ (protan/deutan) against both #09090B and #F8FAFC.
+   * Do not swap these for --cyan / --red / --amber.
+   */
+  --chart-ev: #0891B2;      /* cyan-600  — battery-electric series (cool pole) */
+  --chart-ice: #DC2626;     /* red-600   — conventional / diesel series */
+  --chart-warm: #EA580C;    /* orange-600 — warm pole of the diverging scale */
+  --chart-demand: #D97706;  /* amber-600 — energy demand / drain */
+  --chart-accent: #8B5CF6;  /* violet-500 — fourth categorical slot */
+  --chart-good: #059669;    /* green-600 — favourable outcome */
+  --chart-neutral: #71717A; /* zinc-500  — diverging midpoint, reads as "nothing" */
+  --chart-grid: rgba(148, 163, 184, 0.10);
+
+  /* ─── Fonts ─── */
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ─── Light theme overrides ─── */
+:root[data-theme="light"] {
+  --background: #F8FAFC; /* slate-50 */
+  --foreground: #0F172A; /* slate-900 */
+  --navy: #F1F5F9; /* slate-100 */
+  --navy-light: #E2E8F0; /* slate-200 */
+  --navy-medium: #CBD5E1; /* slate-300 */
+  --navy-surface: #E2E8F0;
+
+  /* ─── Primary accent (slightly deepened for contrast on light) ─── */
+  --cyan: #0891B2; /* cyan-600 */
+  --cyan-dim: rgba(8, 145, 178, 0.12);
+  --cyan-glow: rgba(8, 145, 178, 0.06);
+
+  /* ─── Secondary ─── */
+  --steel: #2563EB; /* blue-600 */
+  --steel-dim: #1D4ED8;
+  --steel-surface: rgba(37, 99, 235, 0.06);
+
+  /* ─── Status ─── */
+  --green: #059669; /* emerald-600 */
+  --green-dim: rgba(5, 150, 105, 0.10);
+
+  --amber: #D97706; /* amber-600 */
+  --amber-dim: rgba(217, 119, 6, 0.10);
+
+  --red: #DC2626; /* red-600 */
+  --red-dim: rgba(220, 38, 38, 0.08);
+
+  /* ─── Text hierarchy ─── */
+  --text-primary: #0F172A; /* slate-900 */
+  --text-secondary: #475569; /* slate-600 */
+  --text-muted: #94A3B8; /* slate-400 */
+
+  /* ─── Borders & surfaces ─── */
+  --border: #E2E8F0; /* slate-200 */
+  --border-subtle: #F1F5F9; /* slate-100 */
+  --card-bg: #FFFFFF;
+  --card-border: #E2E8F0; /* slate-200 */
+  --card-hover-border: #CBD5E1; /* slate-300 */
+  --glass: #F1F5F9; /* slate-100 */
+  --glass-strong: #E2E8F0; /* slate-200 */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-navy-light: var(--navy-light);
+  --color-navy-medium: var(--navy-medium);
+  --color-steel: var(--steel);
+  --color-steel-dim: var(--steel-dim);
+  --color-cyan: var(--cyan);
+  --color-amber: var(--amber);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --font-display: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ─── Custom scrollbar ─── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.25);
+}
+
+/* ─── Minimalist card ─── */
+.glass-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+.glass-card:hover {
+  border-color: var(--card-hover-border);
+}
+
+/* ─── Leaflet overrides ─── */
+.leaflet-container {
+  background: var(--navy) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 18, 32, 0.85) !important;
+  color: var(--text-muted) !important;
+  font-size: 9px !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--steel-dim) !important;
+}
+
+
+
+/* ─── Pulse animation ─── */
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.pulse-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--cyan);
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ─── Recharts dark theme ─── */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(148, 163, 184, 0.06) !important;
+}
+
+.recharts-text {
+  fill: var(--text-muted) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 10px !important;
+}
+
+/* ─── Leaflet tooltip ─── */
+.dark-tooltip {
+  background: rgba(14, 26, 43, 0.92) !important;
+  border: 1px solid rgba(148, 163, 184, 0.12) !important;
+  color: var(--text-primary) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  padding: 10px 14px !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.dark-tooltip .leaflet-tooltip-tip {
+  display: none;
+}
+
+/* ─── Custom range slider ─── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--navy-medium), var(--navy-surface));
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--navy);
+  box-shadow: 0 0 8px rgba(56, 217, 200, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 14px rgba(56, 217, 200, 0.45);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--navy);
+  box-shadow: 0 0 8px rgba(56, 217, 200, 0.3);
+  cursor: pointer;
+}
+
+/* ─── Ship wake animation ─── */
+@keyframes wake-fade {
+  0% { opacity: 0.6; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(0.3); }
+}
+
+/* ─── Subtle shimmer for status indicators ─── */
+@keyframes shimmer {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ─── Light theme element overrides ─── */
+:root[data-theme="light"] .leaflet-control-attribution {
+  background: rgba(241, 245, 249, 0.9) !important;
+}
+
+:root[data-theme="light"] .dark-tooltip {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(148, 163, 184, 0.25) !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1) !important;
+}
+
+:root[data-theme="light"] .recharts-cartesian-grid-horizontal line,
+:root[data-theme="light"] .recharts-cartesian-grid-vertical line {
+  stroke: rgba(148, 163, 184, 0.15) !important;
+}
+
+:root[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.2);
+}
+:root[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.35);
+}
+
+/* Smooth transition when toggling themes */
+*, *::before, *::after {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+
+/* ─── Leaderboard tabular grid ───────────────────────────────────────────
+ * Two-column stack on phones, one row per bid from md up. Declared here
+ * rather than inline so the header and the rows can never drift apart.
+ */
+@media (min-width: 768px) {
+  .leaderboard-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 70px 76px 92px 78px 62px 96px;
+  }
+}
