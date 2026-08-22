@@ -4,6 +4,7 @@ import { useSimStore } from '@/store/useSimStore';
 import { motion } from 'framer-motion';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
+<<<<<<< HEAD
   ReferenceLine, ResponsiveContainer, Area, ComposedChart, Bar, Cell
 } from 'recharts';
 import { TrendingDown, AlertTriangle, Clock, Plug, Fuel, Scale, BatteryCharging } from 'lucide-react';
@@ -11,6 +12,11 @@ import {
   SERIES, GRID_STROKE, axisTick, axisLine,
   TooltipShell, TooltipRow, ChartLegend, SectionLabel, TableView,
 } from '@/components/charts/chartTheme';
+=======
+  ReferenceLine, ResponsiveContainer, Area, ComposedChart
+} from 'recharts';
+import { TrendingDown, AlertTriangle, Clock, Plug, Fuel, Scale } from 'lucide-react';
+>>>>>>> origin/master
 
 function StatTile({ label, value, unit, alert, icon }: { label: string; value: string | number; unit?: string; alert?: boolean; icon?: React.ReactNode }) {
   return (
@@ -90,6 +96,7 @@ function FuelTooltip({
   );
 }
 
+<<<<<<< HEAD
 interface CallDatum {
   portShort: string;
   portFull: string;
@@ -148,6 +155,8 @@ function CallTooltip({
   );
 }
 
+=======
+>>>>>>> origin/master
 export default function OperationalCard() {
   const { simResult, config, playback, activePorts } = useSimStore();
   const reserveFloor = config.batteryMWh * (config.reservePercent / 100);
@@ -208,6 +217,7 @@ export default function OperationalCard() {
     })),
   ];
 
+<<<<<<< HEAD
   // Per-call energy ledger: what the leg into this port cost, against what the
   // port could actually put back. Every field here was already computed in
   // simulate() and stored on the leg — none of it was rendered anywhere.
@@ -228,6 +238,8 @@ export default function OperationalCard() {
   const throttledCalls = callData.filter((c) => c.throttled).length;
   const deficitCalls = callData.filter((c) => c.net < 0).length;
 
+=======
+>>>>>>> origin/master
   // Determine how many data points to show based on playback state
   const isAnimating = playback.isPlaying || (playback.hasPlayedOnce && playback.graphProgress < 1);
   const totalPoints = fullChartData.length;
@@ -470,6 +482,7 @@ export default function OperationalCard() {
         )}
       </div>
 
+<<<<<<< HEAD
       {/* ═══ Per-call energy ledger — where the network actually fails ═══ */}
       {!isIce && (
         <div className="pt-5 mt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
@@ -550,6 +563,8 @@ export default function OperationalCard() {
         </div>
       )}
 
+=======
+>>>>>>> origin/master
       {/* Energy balance — the check no amount of charger reshuffling can pass */}
       {!isIce && (
         <div

@@ -8,6 +8,7 @@
 import { Port } from '@/data/ports';
 import { Leg } from '@/data/legs';
 import { SimulationConfig, SimulationResult, EconomicsResult, EmissionsResult } from '@/engine/types';
+<<<<<<< HEAD
 import { scoreSubmission, ScoreBreakdown } from '@/engine/scoring';
 
 // Scoring lives in the engine now — it runs a stress panel over `simulate`,
@@ -15,6 +16,8 @@ import { scoreSubmission, ScoreBreakdown } from '@/engine/scoring';
 // existing imports keep working.
 export type { ScoreBreakdown } from '@/engine/scoring';
 export { scoreSubmission } from '@/engine/scoring';
+=======
+>>>>>>> origin/master
 
 // ─── Types ───
 
@@ -39,6 +42,17 @@ export interface Submission {
   submittedAt: number;
 }
 
+<<<<<<< HEAD
+=======
+export interface ScoreBreakdown {
+  feasibilityBonus: number;   // -100 if fully feasible
+  deadZonePenalty: number;    // +50 per dead zone
+  npvScore: number;           // normalized NPV gap
+  co2Score: number;           // reward for CO2 abated
+  totalScore: number;
+}
+
+>>>>>>> origin/master
 export interface CustomRoute {
   ports: Port[];
   legs: Leg[];
@@ -46,6 +60,48 @@ export interface CustomRoute {
   uploadedAt: number;
 }
 
+<<<<<<< HEAD
+=======
+// ─── Score Computation (pure function, no storage) ───
+
+/**
+ * Compute the competition score for a submission. Lower score = better.
+ *
+ * NOTE ON INTEGRITY: this runs in the browser and the result is stored in
+ * the cloud database. If scores need to count, submissions should be
+ * re-scored server-side from the submitted config.
+ */
+export function computeScore(
+  simResult: SimulationResult,
+  economics: EconomicsResult,
+  emissions: EmissionsResult,
+): ScoreBreakdown {
+  // Feasibility bonus: -100 if fully feasible
+  const feasibilityBonus = simResult.feasible ? -100 : 0;
+
+  // Dead zone penalty: +50 per dead zone
+  const deadZonePenalty = simResult.deadZoneCount * 50;
+
+  // NPV score: normalize to 0–100 scale
+  // Baseline: $50M gap → 50 points, negative gap → negative points
+  const npvScore = economics.npvGap / 1_000_000; // $1M = 1 point
+
+  // CO2 reward: more abatement → more negative (better)
+  // Baseline: 50kt over 10yr → -50 points
+  const co2Score = -(emissions.co2Abated10yr / 1000); // 1kt = -1 point
+
+  const totalScore = feasibilityBonus + deadZonePenalty + npvScore + co2Score;
+
+  return {
+    feasibilityBonus,
+    deadZonePenalty,
+    npvScore: Math.round(npvScore * 10) / 10,
+    co2Score: Math.round(co2Score * 10) / 10,
+    totalScore: Math.round(totalScore * 10) / 10,
+  };
+}
+
+>>>>>>> origin/master
 // ─── ID Generator ───
 
 function generateId(): string {
@@ -97,10 +153,15 @@ export async function addSubmission(
   simResult: SimulationResult,
   economics: EconomicsResult,
   emissions: EmissionsResult,
+<<<<<<< HEAD
   ports: Port[],
   legs: Leg[],
 ): Promise<Submission> {
   const breakdown = scoreSubmission(config, ports, legs);
+=======
+): Promise<Submission> {
+  const breakdown = computeScore(simResult, economics, emissions);
+>>>>>>> origin/master
 
   const submission: Submission = {
     id: generateId(),

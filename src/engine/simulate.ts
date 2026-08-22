@@ -330,6 +330,7 @@ export function simulate(
     // with enough charge to clear the *next* leg and still hold its reserve?
     // This is a diagnostic: the simulated ship holds the timetable and goes
     // flat instead, so slip and dead zones are two views of the same shortfall.
+<<<<<<< HEAD
     //
     // Only an EV can incur it. A conventional vessel has no battery to top up,
     // so charging never delays its departure — without the trackBattery guard
@@ -337,6 +338,10 @@ export function simulate(
     // late against a timetable it would actually have held.
     const nextLeg = voyageLegs[i + 1];
     if (trackBattery && nextLeg && portConfig?.hasCharger && effectiveChargePower > 0) {
+=======
+    const nextLeg = voyageLegs[i + 1];
+    if (nextLeg && portConfig?.hasCharger && effectiveChargePower > 0) {
+>>>>>>> origin/master
       const nextSailHours = nextLeg.baselineSailHours * timeScale;
       const nextDwellHours = nextLeg.dwellMinutes / 60;
       const nextDraw =

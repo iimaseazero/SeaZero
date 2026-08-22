@@ -4,6 +4,7 @@
 // at api.cloudflare.com. The three env vars below must be set in .env.local
 // and in the Vercel dashboard.
 
+<<<<<<< HEAD
 /**
  * Resolve the D1 credentials, naming what is missing.
  *
@@ -39,6 +40,13 @@ function d1Endpoint(): { url: string; token: string } {
     token: apiToken as string,
   };
 }
+=======
+const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID!;
+const DATABASE_ID = process.env.CLOUDFLARE_D1_DATABASE_ID!;
+const API_TOKEN = process.env.CLOUDFLARE_API_TOKEN!;
+
+const D1_URL = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
+>>>>>>> origin/master
 
 interface D1Result<T> {
   results: T[];
@@ -66,11 +74,18 @@ export async function d1Query<T = Record<string, unknown>>(
   sql: string,
   params: unknown[] = [],
 ): Promise<T[]> {
+<<<<<<< HEAD
   const { url, token } = d1Endpoint();
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
+=======
+  const res = await fetch(D1_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+>>>>>>> origin/master
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ sql, params }),
@@ -98,11 +113,18 @@ export async function d1Execute(
   sql: string,
   params: unknown[] = [],
 ): Promise<{ changes: number; lastRowId: number }> {
+<<<<<<< HEAD
   const { url, token } = d1Endpoint();
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
+=======
+  const res = await fetch(D1_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${API_TOKEN}`,
+>>>>>>> origin/master
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ sql, params }),

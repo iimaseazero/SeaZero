@@ -3,6 +3,7 @@
 
 import { SimulationResult, EmissionsResult } from './types';
 import {
+<<<<<<< HEAD
   voyagesPerYear as voyagesPerYearFor,
   ANALYSIS_YEARS,
 } from './constants';
@@ -13,16 +14,33 @@ export function computeEmissions(
   assumptions?: Partial<Assumptions>,
 ): EmissionsResult {
   const { gridCO2gPerKWh, iceCO2TonnesPerMWh } = resolveAssumptions(assumptions);
+=======
+  GRID_CO2_G_PER_KWH,
+  ICE_CO2_TONNES_PER_MWH,
+  voyagesPerYear as voyagesPerYearFor,
+  ANALYSIS_YEARS,
+} from './constants';
+
+export function computeEmissions(simResult: SimulationResult): EmissionsResult {
+>>>>>>> origin/master
   const perYear = voyagesPerYearFor(simResult.voyageMode);
   // EV emissions follow the energy actually drawn from the grid — which
   // includes charging losses and the pre-departure fill, not just the energy
   // that reaches the propellers.
   const evEnergyKWh = simResult.totalGridEnergyMWh * 1000;
+<<<<<<< HEAD
   const evCO2PerVoyageTons = (evEnergyKWh * gridCO2gPerKWh) / 1_000_000; // grams → tonnes
 
   // ICE emissions scale with delivered energy, so they rise with speed
   // (Exhibit 9) instead of falling with sailing hours.
   const iceCO2PerVoyageTons = simResult.totalEnergyMWh * iceCO2TonnesPerMWh;
+=======
+  const evCO2PerVoyageTons = (evEnergyKWh * GRID_CO2_G_PER_KWH) / 1_000_000; // grams → tonnes
+
+  // ICE emissions scale with delivered energy, so they rise with speed
+  // (Exhibit 9) instead of falling with sailing hours.
+  const iceCO2PerVoyageTons = simResult.totalEnergyMWh * ICE_CO2_TONNES_PER_MWH;
+>>>>>>> origin/master
 
   const evCO2PerYear = evCO2PerVoyageTons * perYear;
   const iceCO2PerYear = iceCO2PerVoyageTons * perYear;

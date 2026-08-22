@@ -1,5 +1,6 @@
 'use client';
 
+<<<<<<< HEAD
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, Download, ShieldCheck, ShieldAlert } from 'lucide-react';
@@ -8,12 +9,27 @@ import { Team, Submission, addSubmission } from '@/store/persistence';
 import { scoreSubmission, ScoreBreakdown, ScenarioOutcome } from '@/engine/scoring';
 import { downloadTeamReport } from '@/utils/generateTeamReport';
 import { formatMoney } from '@/components/charts/chartTheme';
+=======
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, Download } from 'lucide-react';
+import { useSimStore } from '@/store/useSimStore';
+import { Team, Submission, addSubmission, computeScore, ScoreBreakdown } from '@/store/persistence';
+import { downloadTeamReport } from '@/utils/generateTeamReport';
+
+function formatM(val: number): string {
+  if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
+  if (Math.abs(val) >= 1_000_000) return `$${(val / 1_000_000).toFixed(0)}M`;
+  return `$${(val / 1_000).toFixed(0)}K`;
+}
+>>>>>>> origin/master
 
 interface SubmitPanelProps {
   selectedTeam: Team | null;
   onSubmitted: () => void;
 }
 
+<<<<<<< HEAD
 /** The four components, with the trade-off each one is meant to create. */
 const COMPONENTS: {
   key: keyof Pick<ScoreBreakdown, 'reliability' | 'cost' | 'climate' | 'service'>;
@@ -138,6 +154,19 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
     await addSubmission(
       selectedTeam, config, simResult, economics, emissions, activePorts, activeLegs,
     );
+=======
+export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelProps) {
+  const { config, simResult, economics, emissions } = useSimStore();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [justSubmitted, setJustSubmitted] = useState(false);
+
+  // Preview score
+  const preview: ScoreBreakdown = computeScore(simResult, economics, emissions);
+
+  const handleSubmit = async () => {
+    if (!selectedTeam) return;
+    await addSubmission(selectedTeam, config, simResult, economics, emissions);
+>>>>>>> origin/master
     setShowConfirm(false);
     setJustSubmitted(true);
     onSubmitted();
@@ -145,6 +174,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
   };
 
   const canSubmit = selectedTeam !== null;
+<<<<<<< HEAD
   const scoreColor =
     preview.totalScore >= 70 ? 'var(--chart-good)'
       : preview.totalScore >= 45 ? 'var(--chart-demand)'
@@ -152,6 +182,8 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
 
   const operational = preview.scenarios.filter((s) => s.kind !== 'economic');
   const economic = preview.scenarios.filter((s) => s.kind === 'economic');
+=======
+>>>>>>> origin/master
 
   return (
     <motion.div
@@ -160,6 +192,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
       className="glass-card p-6"
     >
       <div className="flex items-center gap-2.5 mb-5">
+<<<<<<< HEAD
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--chart-ev)' }} />
         <h3
           className="text-sm font-semibold uppercase tracking-wider"
@@ -202,10 +235,64 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
               color={c.color}
               hint={c.hint}
             />
+=======
+        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--cyan)' }} />
+        <h3 className="text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+          Score Preview & Submit
+        </h3>
+      </div>
+
+      {/* Score preview */}
+      <div className="grid grid-cols-2 gap-3 mb-5">
+        <div
+          className="flex flex-col items-center px-4 py-4 rounded-xl"
+          style={{ background: 'var(--glass-strong)', border: '1px solid var(--card-border)' }}
+        >
+          <span className="text-[10px] uppercase tracking-wider mb-2 font-semibold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+            Projected Score
+          </span>
+          <span
+            className="text-3xl font-bold"
+            style={{
+              fontFamily: 'var(--font-mono)',
+              color: preview.totalScore < 0 ? 'var(--green)' : preview.totalScore < 50 ? 'var(--amber)' : 'var(--red)',
+              lineHeight: 1.1,
+            }}
+          >
+            {preview.totalScore.toFixed(1)}
+          </span>
+          <span className="text-[10px] mt-1" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+            lower is better
+          </span>
+        </div>
+
+        <div
+          className="flex flex-col px-4 py-3 rounded-xl space-y-1.5"
+          style={{ background: 'var(--glass-strong)', border: '1px solid var(--card-border)' }}
+        >
+          <span className="text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+            Breakdown
+          </span>
+          {[
+            { label: 'Feasibility', value: preview.feasibilityBonus, color: preview.feasibilityBonus < 0 ? 'var(--green)' : 'var(--text-muted)' },
+            { label: 'Dead Zones', value: preview.deadZonePenalty, color: preview.deadZonePenalty > 0 ? 'var(--red)' : 'var(--green)' },
+            { label: 'NPV Gap', value: preview.npvScore, color: preview.npvScore < 0 ? 'var(--green)' : 'var(--amber)' },
+            { label: 'CO₂ Reward', value: preview.co2Score, color: preview.co2Score < 0 ? 'var(--green)' : 'var(--red)' },
+          ].map((item) => (
+            <div key={item.label} className="flex justify-between items-center">
+              <span className="text-[11px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+                {item.label}
+              </span>
+              <span className="text-[11px] font-bold" style={{ fontFamily: 'var(--font-mono)', color: item.color }}>
+                {item.value > 0 ? '+' : ''}{item.value}
+              </span>
+            </div>
+>>>>>>> origin/master
           ))}
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* Stress panel */}
       <div
         className="px-4 py-3.5 rounded-xl mb-5"
@@ -251,11 +338,14 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
         </p>
       </div>
 
+=======
+>>>>>>> origin/master
       {/* Config summary */}
       <div
         className="px-4 py-3 rounded-xl mb-5"
         style={{ background: 'var(--glass)', border: '1px solid var(--border)' }}
       >
+<<<<<<< HEAD
         <span
           className="text-[10px] uppercase tracking-wider font-semibold block mb-2"
           style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
@@ -272,6 +362,21 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
             { label: 'Efficiency', value: config.efficiencyPackage ? 'Yes' : 'No' },
           ].map((item) => (
             <div key={item.label} className="flex justify-between gap-2">
+=======
+        <span className="text-[10px] uppercase tracking-wider font-semibold block mb-2" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+          Configuration Summary
+        </span>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: 'Battery', value: `${config.batteryMWh} MWh` },
+            { label: 'Speed', value: `${config.speedKnots.toFixed(1)} kn` },
+            { label: 'Chargers', value: `${config.portConfigs.filter(p => p.hasCharger).length}` },
+            { label: 'Buffers', value: `${config.portConfigs.filter(p => p.hasBufferBattery).length}` },
+            { label: 'Efficiency', value: config.efficiencyPackage ? 'Yes' : 'No' },
+            { label: 'NPV Gap', value: formatM(economics.npvGap) },
+          ].map((item) => (
+            <div key={item.label} className="flex justify-between">
+>>>>>>> origin/master
               <span className="text-[11px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
                 {item.label}
               </span>
@@ -283,7 +388,11 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* Submit */}
+=======
+      {/* Submit button & Download Current Report */}
+>>>>>>> origin/master
       <div className="space-y-2">
         <AnimatePresence mode="wait">
           {justSubmitted ? (
@@ -293,11 +402,22 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0 }}
               className="flex items-center justify-center gap-2 py-3 rounded-xl"
+<<<<<<< HEAD
               style={{ background: 'rgba(5,150,105,0.12)', border: '1px solid rgba(5,150,105,0.25)' }}
             >
               <CheckCircle size={20} style={{ color: 'var(--chart-good)' }} />
               <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--chart-good)' }}>
                 Bid submitted
+=======
+              style={{
+                background: 'var(--green-dim)',
+                border: '1px solid rgba(52, 211, 153, 0.2)',
+              }}
+            >
+              <CheckCircle size={20} className="text-green-500" />
+              <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--green)' }}>
+                Submitted Successfully!
+>>>>>>> origin/master
               </span>
             </motion.div>
           ) : showConfirm ? (
@@ -313,12 +433,21 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
                 className="flex-1 py-3 rounded-xl text-sm font-bold transition-all"
                 style={{
                   fontFamily: 'var(--font-display)',
+<<<<<<< HEAD
                   background: 'rgba(5,150,105,0.14)',
                   color: 'var(--chart-good)',
                   border: '1px solid rgba(5,150,105,0.25)',
                 }}
               >
                 Confirm bid for {selectedTeam?.name}
+=======
+                  background: 'rgba(52, 211, 153, 0.15)',
+                  color: 'var(--green)',
+                  border: '1px solid rgba(52, 211, 153, 0.25)',
+                }}
+              >
+                Confirm Submit for {selectedTeam?.name}
+>>>>>>> origin/master
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
@@ -344,6 +473,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
               className="w-full py-3 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
               style={{
                 fontFamily: 'var(--font-display)',
+<<<<<<< HEAD
                 background: canSubmit ? 'rgba(8,145,178,0.12)' : 'var(--glass)',
                 color: canSubmit ? 'var(--chart-ev)' : 'var(--text-muted)',
                 border: `1px solid ${canSubmit ? 'rgba(8,145,178,0.25)' : 'var(--card-border)'}`,
@@ -351,6 +481,16 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
               }}
             >
               {canSubmit ? 'Submit bid (replaces your previous one)' : 'Select a team first'}
+=======
+                background: canSubmit ? 'rgba(56, 217, 200, 0.12)' : 'var(--glass)',
+                color: canSubmit ? 'var(--cyan)' : 'var(--text-muted)',
+                border: `1px solid ${canSubmit ? 'rgba(56, 217, 200, 0.2)' : 'var(--card-border)'}`,
+                cursor: canSubmit ? 'pointer' : 'not-allowed',
+                boxShadow: canSubmit ? '0 0 20px rgba(56, 217, 200, 0.06)' : 'none',
+              }}
+            >
+              {canSubmit ? 'Submit Configuration' : 'Select a team first'}
+>>>>>>> origin/master
             </motion.button>
           )}
         </AnimatePresence>
@@ -361,7 +501,11 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
               id: `preview-${Date.now()}`,
               teamId: selectedTeam?.id || 'preview',
               teamName: selectedTeam?.name || 'Current Configuration',
+<<<<<<< HEAD
               teamColor: selectedTeam?.color || '#0891B2',
+=======
+              teamColor: selectedTeam?.color || '#38D9C8',
+>>>>>>> origin/master
               config,
               simResult,
               economics,
@@ -380,8 +524,13 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
             border: '1px solid var(--card-border)',
           }}
         >
+<<<<<<< HEAD
           <Download size={14} style={{ color: 'var(--chart-ev)' }} />
           Download current report
+=======
+          <Download size={14} className="text-cyan-400" />
+          Download Current Report
+>>>>>>> origin/master
         </button>
       </div>
     </motion.div>

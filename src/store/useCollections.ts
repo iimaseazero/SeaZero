@@ -27,6 +27,7 @@ export function useTeams(): { teams: Team[]; refreshTeams: () => void } {
 
 // ─── useLeaderboard ───
 
+<<<<<<< HEAD
 /** How often the leaderboard re-reads D1 while the tab is visible. */
 const LEADERBOARD_POLL_MS = 5000;
 
@@ -52,10 +53,18 @@ export function useLeaderboard(): {
       setSubmissions(rows);
       setLastUpdated(Date.now());
     });
+=======
+export function useLeaderboard(): { submissions: Submission[]; refreshLeaderboard: () => void } {
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+
+  const refreshLeaderboard = useCallback(() => {
+    getLeaderboard().then(setSubmissions);
+>>>>>>> origin/master
   }, []);
 
   useEffect(() => {
     refreshLeaderboard();
+<<<<<<< HEAD
 
     let timer: ReturnType<typeof setInterval> | null = null;
 
@@ -88,6 +97,11 @@ export function useLeaderboard(): {
   }, [refreshLeaderboard]);
 
   return { submissions, refreshLeaderboard, lastUpdated };
+=======
+  }, [refreshLeaderboard]);
+
+  return { submissions, refreshLeaderboard };
+>>>>>>> origin/master
 }
 
 /** True once the client has hydrated — use to avoid server/client markup mismatches. */
