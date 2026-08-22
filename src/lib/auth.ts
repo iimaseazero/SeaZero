@@ -8,11 +8,60 @@ import bcrypt from 'bcryptjs';
 
 // ─── JWT ───
 
+<<<<<<< HEAD
+const DEV_FALLBACK_SECRET = 'dev-secret-change-me';
+const JWT_ISSUER = 'sea-zero';
+const JWT_EXPIRY = '7d';
+
+let warnedAboutDevSecret = false;
+
+/**
+ * Resolve the signing secret, refusing to fall back in production.
+ *
+ * This used to be `process.env.JWT_SECRET ?? 'dev-secret-change-me'` evaluated
+ * at module scope. Deployed without JWT_SECRET set, that signs and trusts
+ * tokens against a secret written in the source: anyone who can read the repo
+ * can mint a token for any email, including whatever ADMIN_EMAIL is, and walk
+ * straight into the admin console.
+ *
+ * Resolved lazily rather than at module load so a missing variable can never
+ * break `next build` — it fails closed at request time instead. verifyToken
+ * catches the throw and returns null, so every route redirects to /login
+ * rather than admitting anyone.
+ */
+function getSecret(): Uint8Array {
+  const raw = process.env.JWT_SECRET;
+
+  if (raw && raw.length > 0) {
+    if (raw === DEV_FALLBACK_SECRET && process.env.NODE_ENV === 'production') {
+      throw new Error(
+        'JWT_SECRET is set to the development placeholder. Generate a real one: openssl rand -base64 32',
+      );
+    }
+    return new TextEncoder().encode(raw);
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'JWT_SECRET is not set. Authentication is disabled rather than fall back to a public secret. ' +
+      'Set it in your hosting provider environment variables (e.g. Vercel > Settings > Environment Variables).',
+    );
+  }
+
+  if (!warnedAboutDevSecret) {
+    warnedAboutDevSecret = true;
+    console.warn('[auth] JWT_SECRET not set — using the development fallback. Never deploy this way.');
+  }
+  return new TextEncoder().encode(DEV_FALLBACK_SECRET);
+}
+
+=======
 const JWT_SECRET_RAW = process.env.JWT_SECRET ?? 'dev-secret-change-me';
 const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_RAW);
 const JWT_ISSUER = 'sea-zero';
 const JWT_EXPIRY = '7d';
 
+>>>>>>> origin/master
 export interface TokenPayload extends JWTPayload {
   userId: string;
   email: string;
@@ -25,13 +74,21 @@ export async function signToken(userId: string, email: string): Promise<string> 
     .setIssuer(JWT_ISSUER)
     .setIssuedAt()
     .setExpirationTime(JWT_EXPIRY)
+<<<<<<< HEAD
+    .sign(getSecret());
+=======
     .sign(JWT_SECRET);
+>>>>>>> origin/master
 }
 
 /** Verify a JWT and return its payload, or null if invalid/expired. */
 export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
+<<<<<<< HEAD
+    const { payload } = await jwtVerify(token, getSecret(), { issuer: JWT_ISSUER });
+=======
     const { payload } = await jwtVerify(token, JWT_SECRET, { issuer: JWT_ISSUER });
+>>>>>>> origin/master
     if (typeof payload.userId !== 'string' || typeof payload.email !== 'string') {
       return null;
     }

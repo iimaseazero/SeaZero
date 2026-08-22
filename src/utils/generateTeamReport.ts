@@ -4,6 +4,39 @@
 // and environmental emissions. Can be opened offline or printed directly to PDF.
 
 import { Submission } from '@/store/persistence';
+<<<<<<< HEAD
+import { ScoreBreakdown } from '@/engine/scoring';
+
+/**
+ * HTML-escape a string before interpolating it into the report.
+ *
+ * The report is built by string concatenation and handed to the user as a
+ * downloadable .html file. Two of the values in it are user-controlled:
+ *
+ *   - `teamName`, typed into the admin team manager. The API trims it and caps
+ *     it at 80 characters but does not strip markup.
+ *   - `infeasibleReason`, which embeds port names — and port names can come
+ *     from an uploaded route spreadsheet.
+ *
+ * Unescaped, a team called `<img src=x onerror=...>` yields a report that runs
+ * arbitrary JavaScript the moment an instructor opens the file they just
+ * downloaded. It executes under file:// rather than the app's origin, so it
+ * cannot reach session cookies, but running attacker JS on the grader's machine
+ * is not something a performance report should do.
+ *
+ * Escaped at the sink rather than on input, so it stays correct no matter where
+ * the value came from.
+ */
+function esc(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+=======
+>>>>>>> origin/master
 
 function formatMoney(val: number): string {
   const abs = Math.abs(val);
@@ -14,8 +47,23 @@ function formatMoney(val: number): string {
   return `${sign}$${abs.toFixed(0)}`;
 }
 
+<<<<<<< HEAD
+/**
+ * Submissions stored before the scoring rewrite carry the old four-field
+ * breakdown and no scenario list. The Report button on the leaderboard fires
+ * for those rows too, so every field the new report reads has to be optional.
+ */
+function isCurrentBreakdown(b: unknown): b is ScoreBreakdown {
+  return !!b && typeof b === 'object' && 'reliability' in b && Array.isArray((b as ScoreBreakdown).scenarios);
+}
+
 export function generateTeamReportHtml(sub: Submission): string {
   const { teamName, teamColor, config, simResult, economics, emissions, score, breakdown, submittedAt } = sub;
+  const scored = isCurrentBreakdown(breakdown) ? breakdown : null;
+=======
+export function generateTeamReportHtml(sub: Submission): string {
+  const { teamName, teamColor, config, simResult, economics, emissions, score, breakdown, submittedAt } = sub;
+>>>>>>> origin/master
   const isFeasible = simResult.feasible;
   const submittedDateStr = new Date(submittedAt).toLocaleString('en-US', {
     dateStyle: 'full',
@@ -85,7 +133,11 @@ export function generateTeamReportHtml(sub: Submission): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
+  <title>Team Performance Report — ${esc(teamName)}</title>
+=======
   <title>Team Performance Report — ${teamName}</title>
+>>>>>>> origin/master
   <style>
     :root {
       --bg: #09090b;
@@ -237,7 +289,11 @@ export function generateTeamReportHtml(sub: Submission): string {
       <div>
         <div class="team-badge">
           <div class="team-dot"></div>
+<<<<<<< HEAD
+          ${esc(teamName)}
+=======
           ${teamName}
+>>>>>>> origin/master
         </div>
         <div class="meta">
           Submitted: ${submittedDateStr} &bull; Submission ID: ${sub.id}
@@ -246,6 +302,15 @@ export function generateTeamReportHtml(sub: Submission): string {
           <span class="badge ${isFeasible ? 'badge-feasible' : 'badge-infeasible'}">
             ${isFeasible ? '✓ 100% Feasible Voyage' : '✕ Infeasible Configuration'}
           </span>
+<<<<<<< HEAD
+          ${!isFeasible ? `<p style="color: var(--red); font-size: 11px; margin-top: 6px;"><strong>Reason:</strong> ${esc(simResult.infeasibleReason)}</p>` : ''}
+        </div>
+      </div>
+      <div class="score-box">
+        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Bid Score</div>
+        <div class="score-val">${score.toFixed(0)}</div>
+        <div style="font-size: 10px; color: var(--text-muted);">out of 100 &middot; higher is better</div>
+=======
           ${!isFeasible ? `<p style="color: var(--red); font-size: 11px; margin-top: 6px;"><strong>Reason:</strong> ${simResult.infeasibleReason}</p>` : ''}
         </div>
       </div>
@@ -253,12 +318,70 @@ export function generateTeamReportHtml(sub: Submission): string {
         <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Overall Score</div>
         <div class="score-val">${score.toFixed(1)}</div>
         <div style="font-size: 10px; color: var(--text-muted);">(Lower is better)</div>
+>>>>>>> origin/master
       </div>
     </div>
 
     <!-- Executive Summary & Score Breakdown -->
     <div class="section">
       <div class="section-title">Score Breakdown</div>
+<<<<<<< HEAD
+      ${scored ? `
+      <div class="grid">
+        <div class="metric-card">
+          <div class="metric-label">Reliability (of 35)</div>
+          <div class="metric-value" style="color: var(--cyan);">${scored.reliability}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Cost (of 35)</div>
+          <div class="metric-value">${scored.cost}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Climate (of 20)</div>
+          <div class="metric-value" style="color: var(--green);">${scored.climate}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Service (of 10)</div>
+          <div class="metric-value">${scored.service}</div>
+        </div>
+      </div>
+      <p style="font-size: 11px; color: var(--text-muted); margin-top: 10px;">
+        Worst-case 10-year TCO ${formatMoney(scored.worstCaseTCO)} against a ${formatMoney(scored.benchmarkTCO)}
+        efficiency-upgraded conventional benchmark &middot; ${scored.co2ReductionPercent.toFixed(0)}% below a
+        do-nothing vessel &middot; ${scored.operationalPassed} of ${scored.operationalTotal} operational
+        stresses survived.
+      </p>` : `
+      <p style="font-size: 12px; color: var(--text-muted);">
+        This submission was scored under the previous formula and has no component breakdown.
+        Re-submit the configuration to score it against the current stress panel.
+      </p>`}
+    </div>
+
+    ${scored ? `
+    <!-- Stress panel -->
+    <div class="section">
+      <div class="section-title">Stress Panel</div>
+      <table>
+        <thead>
+          <tr><th>Scenario</th><th>Tests</th><th>Outcome</th><th>Worst margin</th><th>10yr TCO</th></tr>
+        </thead>
+        <tbody>
+          ${scored.scenarios.map((sc) => `
+            <tr>
+              <td><strong>${sc.name}</strong><br><span style="font-size:10px;color:var(--text-muted);">${sc.rationale}</span></td>
+              <td>${sc.kind === 'economic' ? 'Cost' : sc.kind === 'base' ? 'Baseline' : 'Feasibility'}</td>
+              <td style="color: ${sc.kind === 'economic' ? 'var(--text-secondary)' : sc.feasible ? 'var(--green)' : 'var(--red)'};">
+                ${sc.kind === 'economic' ? '—' : sc.feasible ? 'Completes' : 'Fails'}
+              </td>
+              <td>${sc.worstMarginPercent.toFixed(1)}%</td>
+              <td>${formatMoney(sc.chosenTCO)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>` : ''}
+
+=======
       <div class="grid">
         <div class="metric-card">
           <div class="metric-label">Feasibility Bonus</div>
@@ -279,6 +402,7 @@ export function generateTeamReportHtml(sub: Submission): string {
       </div>
     </div>
 
+>>>>>>> origin/master
     <!-- Team Decisions / Configuration -->
     <div class="section">
       <div class="section-title">1. Strategic Decisions & Configuration</div>

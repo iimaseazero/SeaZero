@@ -1,11 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { d1Query, d1Execute } from '@/lib/d1';
+<<<<<<< HEAD
+import { requireUser, requireAdmin } from '@/lib/apiAuth';
+=======
+>>>>>>> origin/master
 
 // ─── GET /api/custom-route — load the saved custom route (singleton) ───
 
 export async function GET() {
   try {
+<<<<<<< HEAD
+    // The active route is needed by every signed-in user.
+    const auth = await requireUser();
+    if (auth.response) return auth.response;
+
+=======
+>>>>>>> origin/master
     const rows = await d1Query<{
       ports: string;
       legs: string;
@@ -34,6 +45,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+<<<<<<< HEAD
+    // Replacing the route changes it for the whole cohort.
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
+=======
+>>>>>>> origin/master
     const body = await request.json();
     const { ports, legs, routeName, uploadedAt } = body;
 
@@ -64,6 +82,13 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE() {
   try {
+<<<<<<< HEAD
+    // Resetting to the default route is an admin action.
+    const auth = await requireAdmin();
+    if (auth.response) return auth.response;
+
+=======
+>>>>>>> origin/master
     await d1Execute('DELETE FROM custom_routes WHERE id = 1');
     return NextResponse.json({ success: true });
   } catch (err) {

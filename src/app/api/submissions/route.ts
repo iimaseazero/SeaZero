@@ -1,11 +1,27 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { d1Query, d1Execute } from '@/lib/d1';
+<<<<<<< HEAD
+import { requireUser, requireAdmin } from '@/lib/apiAuth';
+
+// ─── GET /api/submissions — leaderboard (sorted by score DESCENDING) ───
+//
+// The score was rewritten to be a 0-100 index where higher is better, so the
+// ordering flipped. See engine/scoring.ts for why.
+
+export async function GET() {
+  try {
+    // Leaderboard is visible to any signed-in user.
+    const auth = await requireUser();
+    if (auth.response) return auth.response;
+
+=======
 
 // ─── GET /api/submissions — leaderboard (sorted by score ascending) ───
 
 export async function GET() {
   try {
+>>>>>>> origin/master
     const rows = await d1Query<{
       id: string;
       team_id: string;
@@ -18,7 +34,11 @@ export async function GET() {
       score: number;
       breakdown: string;
       submitted_at: number;
+<<<<<<< HEAD
+    }>('SELECT * FROM submissions ORDER BY score DESC');
+=======
     }>('SELECT * FROM submissions ORDER BY score ASC');
+>>>>>>> origin/master
 
     const mapped = rows.map((r) => ({
       id: r.id,
@@ -45,6 +65,13 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+<<<<<<< HEAD
+    // Submitting requires a session; the handler upserts by team.
+    const auth = await requireUser();
+    if (auth.response) return auth.response;
+
+=======
+>>>>>>> origin/master
     const body = await request.json();
     const {
       id,

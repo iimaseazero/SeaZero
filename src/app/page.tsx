@@ -8,6 +8,11 @@ import VerdictBanner from '@/components/VerdictBanner';
 import OperationalCard from '@/components/cards/OperationalCard';
 import FinancialCard from '@/components/cards/FinancialCard';
 import EnvironmentalCard from '@/components/cards/EnvironmentalCard';
+<<<<<<< HEAD
+import DecisionCard from '@/components/cards/DecisionCard';
+import SensitivityCard from '@/components/cards/SensitivityCard';
+=======
+>>>>>>> origin/master
 import HoverTag from '@/components/HoverTag';
 import { BarChart3, Sliders, Map as MapIcon } from 'lucide-react';
 import { useFrozenControls } from '@/store/useFrozenControls';
@@ -96,6 +101,15 @@ export default function Home() {
           <HoverTag tag="CO₂ Emissions Impact">
             <EnvironmentalCard />
           </HoverTag>
+<<<<<<< HEAD
+          <HoverTag tag="Decision Surface">
+            <DecisionCard />
+          </HoverTag>
+          <HoverTag tag="Assumption Sensitivity">
+            <SensitivityCard />
+          </HoverTag>
+=======
+>>>>>>> origin/master
         </motion.section>
 
         {/* RIGHT — Map */}

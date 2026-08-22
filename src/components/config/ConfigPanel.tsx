@@ -6,6 +6,10 @@ import { useMemo, useState } from 'react';
 import type { LucideIcon } from 'lucide-react';
 import { Zap, Flame, Battery, Plug, Maximize2, Network, ArrowRight, Repeat, Lock } from 'lucide-react';
 import { MIN_CUBE_EXPONENT, MAX_CUBE_EXPONENT } from '@/engine/constants';
+<<<<<<< HEAD
+import ExportButton from '@/components/ExportButton';
+=======
+>>>>>>> origin/master
 
 const PRESET_ICONS: Record<string, LucideIcon> = {
   'case-design': Maximize2,
@@ -528,6 +532,21 @@ export default function ConfigPanel() {
           </AnimatePresence>
         </div>
       </div>
+<<<<<<< HEAD
+
+      {/* Export — pinned below the scrolling controls so it is reachable
+          without hunting through the accordion. */}
+      <div className="flex-shrink-0 px-4 py-3" style={{ borderTop: '1px solid var(--border)' }}>
+        <ExportButton />
+        <p
+          className="text-[10px] mt-1.5 leading-snug text-center"
+          style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
+        >
+          15 sheets — every leg, cash flow and analysis behind these charts
+        </p>
+      </div>
+=======
+>>>>>>> origin/master
     </div>
   );
 }

@@ -4,9 +4,19 @@ import { useSimStore } from '@/store/useSimStore';
 import { motion } from 'framer-motion';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
+<<<<<<< HEAD
+  ReferenceLine, ResponsiveContainer, Area, ComposedChart, Bar, Cell
+} from 'recharts';
+import { TrendingDown, AlertTriangle, Clock, Plug, Fuel, Scale, BatteryCharging } from 'lucide-react';
+import {
+  SERIES, GRID_STROKE, axisTick, axisLine,
+  TooltipShell, TooltipRow, ChartLegend, SectionLabel, TableView,
+} from '@/components/charts/chartTheme';
+=======
   ReferenceLine, ResponsiveContainer, Area, ComposedChart
 } from 'recharts';
 import { TrendingDown, AlertTriangle, Clock, Plug, Fuel, Scale } from 'lucide-react';
+>>>>>>> origin/master
 
 function StatTile({ label, value, unit, alert, icon }: { label: string; value: string | number; unit?: string; alert?: boolean; icon?: React.ReactNode }) {
   return (
@@ -86,6 +96,67 @@ function FuelTooltip({
   );
 }
 
+<<<<<<< HEAD
+interface CallDatum {
+  portShort: string;
+  portFull: string;
+  /** Plotted downward: energy the leg into this port consumed. */
+  demand: number;
+  /** Plotted upward: energy actually put back into the battery here. */
+  charged: number;
+  gridLoss: number;
+  throttled: boolean;
+  deliveredMW: number;
+  ratedMW: number;
+  chargingMinutes: number;
+  ccSharePercent: number;
+  net: number;
+}
+
+/**
+ * Per-call energy tooltip.
+ *
+ * The state-of-charge trace above shows the RESULT of demand and charging
+ * netting out; it cannot show which of the two is the problem at a given port.
+ * This chart separates them, and surfaces the connector/grid/taper detail the
+ * engine already computes per leg and previously discarded.
+ */
+function CallTooltip({
+  active, payload,
+}: {
+  active?: boolean;
+  payload?: { payload: CallDatum }[];
+}) {
+  const d = payload?.[0]?.payload;
+  if (!active || !d) return null;
+  return (
+    <TooltipShell
+      title={d.portFull}
+      subtitle={
+        d.throttled
+          ? 'Local grid was the binding limit here, not the connector'
+          : d.charged > 0
+            ? undefined
+            : 'No charger at this call'
+      }
+    >
+      <TooltipRow label="Leg demand" value={`${d.demand.toFixed(1)} MWh`} swatch={SERIES.demand} />
+      <TooltipRow label="Charged here" value={`${d.charged.toFixed(1)} MWh`} swatch={SERIES.ev} />
+      <TooltipRow label="Net" value={`${d.net >= 0 ? '+' : ''}${d.net.toFixed(1)} MWh`} />
+      {d.charged > 0 && (
+        <>
+          <TooltipRow label="Power delivered" value={`${d.deliveredMW.toFixed(1)} of ${d.ratedMW} MW`} />
+          <TooltipRow label="Plugged in" value={`${d.chargingMinutes.toFixed(0)} min`} />
+          <TooltipRow label="At full rate (CC)" value={`${d.ccSharePercent.toFixed(0)}%`} />
+          <TooltipRow label="Lost to charging" value={`${d.gridLoss.toFixed(2)} MWh`} />
+        </>
+      )}
+    </TooltipShell>
+  );
+}
+
+=======
+>>>>>>> origin/master
 export default function OperationalCard() {
   const { simResult, config, playback, activePorts } = useSimStore();
   const reserveFloor = config.batteryMWh * (config.reservePercent / 100);
@@ -146,6 +217,29 @@ export default function OperationalCard() {
     })),
   ];
 
+<<<<<<< HEAD
+  // Per-call energy ledger: what the leg into this port cost, against what the
+  // port could actually put back. Every field here was already computed in
+  // simulate() and stored on the leg — none of it was rendered anywhere.
+  const callData: CallDatum[] = simResult.legs.map((leg) => ({
+    portShort: `${leg.toPortName.substring(0, 3).toUpperCase()}${leg.direction === 'north' ? '▲' : '▼'}`,
+    portFull: `${leg.fromPortName} → ${leg.toPortName} (${leg.direction === 'north' ? 'northbound' : 'southbound'})`,
+    demand: -leg.legEnergyMWh,
+    charged: leg.chargeGainedMWh,
+    gridLoss: Math.max(0, leg.chargeGainedRawMWh - leg.chargeGainedMWh),
+    throttled: leg.isGridThrottled,
+    deliveredMW: leg.effectiveChargePowerMW,
+    ratedMW: config.chargePowerMW,
+    chargingMinutes: leg.effectiveChargingMinutes,
+    ccSharePercent: leg.ccCvPhaseSplit * 100,
+    net: leg.chargeGainedMWh - leg.legEnergyMWh,
+  }));
+
+  const throttledCalls = callData.filter((c) => c.throttled).length;
+  const deficitCalls = callData.filter((c) => c.net < 0).length;
+
+=======
+>>>>>>> origin/master
   // Determine how many data points to show based on playback state
   const isAnimating = playback.isPlaying || (playback.hasPlayedOnce && playback.graphProgress < 1);
   const totalPoints = fullChartData.length;
@@ -388,6 +482,89 @@ export default function OperationalCard() {
         )}
       </div>
 
+<<<<<<< HEAD
+      {/* ═══ Per-call energy ledger — where the network actually fails ═══ */}
+      {!isIce && (
+        <div className="pt-5 mt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
+          <SectionLabel icon={<BatteryCharging size={14} />}>
+            Energy in vs energy out, call by call
+          </SectionLabel>
+
+          <p className="text-[11px] leading-relaxed mb-3" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}>
+            The trace above shows the two netting out; this shows them separately, so a port that
+            cannot keep up is visible before the battery gets there. Bars below the line are what the
+            leg consumed, above it what the port put back.
+            {deficitCalls > 0 && (
+              <> <strong>{deficitCalls}</strong> of {callData.length} calls end the leg with less energy
+                than it took to get there.</>
+            )}
+            {throttledCalls > 0 && (
+              <> <strong>{throttledCalls}</strong> {throttledCalls === 1 ? 'is' : 'are'} limited by the
+                local grid rather than the connector.</>
+            )}
+          </p>
+
+          <div className="w-full min-w-0 overflow-hidden" style={{ height: 210 }}>
+            <ResponsiveContainer width="100%" height={210} minWidth={0}>
+              <ComposedChart data={callData} margin={{ top: 6, right: 16, left: -6, bottom: 5 }} barGap={0}>
+                <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+                <XAxis
+                  dataKey="portShort"
+                  tick={axisTick}
+                  axisLine={axisLine}
+                  tickLine={false}
+                  interval="preserveStartEnd"
+                  minTickGap={18}
+                />
+                <YAxis
+                  tick={axisTick}
+                  axisLine={axisLine}
+                  tickLine={false}
+                  width={48}
+                  tickFormatter={(v: number) => `${Math.abs(v).toFixed(0)}`}
+                  unit=" MWh"
+                />
+                <Tooltip content={<CallTooltip />} cursor={{ fill: 'var(--glass)' }} />
+                <ReferenceLine y={0} stroke="var(--chart-neutral)" strokeWidth={1.5} />
+                <Bar dataKey="demand" radius={[0, 0, 2, 2]} fill={SERIES.demand} isAnimationActive={false} />
+                <Bar dataKey="charged" radius={[2, 2, 0, 0]} isAnimationActive={false}>
+                  {callData.map((c, i) => (
+                    // Grid-throttled calls take the warm pole — this is a status,
+                    // not a third series, and it always ships with the count in
+                    // the text above and a flag in the table view.
+                    <Cell key={i} fill={c.throttled ? SERIES.warm : SERIES.ev} />
+                  ))}
+                </Bar>
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+
+          <ChartLegend
+            items={[
+              { label: 'Energy consumed on the leg', color: SERIES.demand },
+              { label: 'Energy charged at the port', color: SERIES.ev },
+              { label: 'Charging limited by local grid', color: SERIES.warm },
+            ]}
+          />
+
+          <TableView
+            caption="Per port call: energy consumed on the inbound leg against energy recharged"
+            columns={['Call', 'Leg demand', 'Charged', 'Net', 'Power', 'Plugged in', 'Grid limited']}
+            rows={callData.map((c) => [
+              c.portFull,
+              `${Math.abs(c.demand).toFixed(1)} MWh`,
+              `${c.charged.toFixed(1)} MWh`,
+              `${c.net >= 0 ? '+' : ''}${c.net.toFixed(1)} MWh`,
+              c.charged > 0 ? `${c.deliveredMW.toFixed(1)}/${c.ratedMW} MW` : '—',
+              c.charged > 0 ? `${c.chargingMinutes.toFixed(0)} min` : '—',
+              c.throttled ? 'yes' : 'no',
+            ])}
+          />
+        </div>
+      )}
+
+=======
+>>>>>>> origin/master
       {/* Energy balance — the check no amount of charger reshuffling can pass */}
       {!isIce && (
         <div

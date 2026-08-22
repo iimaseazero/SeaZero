@@ -8,6 +8,16 @@
 import { Port } from '@/data/ports';
 import { Leg } from '@/data/legs';
 import { SimulationConfig, SimulationResult, EconomicsResult, EmissionsResult } from '@/engine/types';
+<<<<<<< HEAD
+import { scoreSubmission, ScoreBreakdown } from '@/engine/scoring';
+
+// Scoring lives in the engine now — it runs a stress panel over `simulate`,
+// so it needs the route, not just the headline results. Re-exported here so
+// existing imports keep working.
+export type { ScoreBreakdown } from '@/engine/scoring';
+export { scoreSubmission } from '@/engine/scoring';
+=======
+>>>>>>> origin/master
 
 // ─── Types ───
 
@@ -32,6 +42,8 @@ export interface Submission {
   submittedAt: number;
 }
 
+<<<<<<< HEAD
+=======
 export interface ScoreBreakdown {
   feasibilityBonus: number;   // -100 if fully feasible
   deadZonePenalty: number;    // +50 per dead zone
@@ -40,6 +52,7 @@ export interface ScoreBreakdown {
   totalScore: number;
 }
 
+>>>>>>> origin/master
 export interface CustomRoute {
   ports: Port[];
   legs: Leg[];
@@ -47,6 +60,8 @@ export interface CustomRoute {
   uploadedAt: number;
 }
 
+<<<<<<< HEAD
+=======
 // ─── Score Computation (pure function, no storage) ───
 
 /**
@@ -86,6 +101,7 @@ export function computeScore(
   };
 }
 
+>>>>>>> origin/master
 // ─── ID Generator ───
 
 function generateId(): string {
@@ -137,8 +153,15 @@ export async function addSubmission(
   simResult: SimulationResult,
   economics: EconomicsResult,
   emissions: EmissionsResult,
+<<<<<<< HEAD
+  ports: Port[],
+  legs: Leg[],
+): Promise<Submission> {
+  const breakdown = scoreSubmission(config, ports, legs);
+=======
 ): Promise<Submission> {
   const breakdown = computeScore(simResult, economics, emissions);
+>>>>>>> origin/master
 
   const submission: Submission = {
     id: generateId(),

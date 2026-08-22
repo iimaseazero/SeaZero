@@ -9,6 +9,11 @@ import VerdictBanner from '@/components/VerdictBanner';
 import OperationalCard from '@/components/cards/OperationalCard';
 import FinancialCard from '@/components/cards/FinancialCard';
 import EnvironmentalCard from '@/components/cards/EnvironmentalCard';
+<<<<<<< HEAD
+import DecisionCard from '@/components/cards/DecisionCard';
+import SensitivityCard from '@/components/cards/SensitivityCard';
+=======
+>>>>>>> origin/master
 import TeamSelector from '@/components/compete/TeamSelector';
 import SubmitPanel from '@/components/compete/SubmitPanel';
 import Leaderboard from '@/components/compete/Leaderboard';
@@ -123,7 +128,13 @@ export default function CompetePage() {
 
           {/* Analytics cards */}
           <OperationalCard />
+<<<<<<< HEAD
+          <DecisionCard />
           <FinancialCard />
+          <SensitivityCard />
+=======
+          <FinancialCard />
+>>>>>>> origin/master
           <EnvironmentalCard />
         </motion.section>
 

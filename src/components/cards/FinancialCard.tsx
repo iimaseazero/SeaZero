@@ -4,9 +4,20 @@ import { useSimStore } from '@/store/useSimStore';
 import { motion } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
+<<<<<<< HEAD
+  ResponsiveContainer, Legend, Cell, ReferenceLine, ComposedChart, Line,
+  ReferenceDot, Area
+} from 'recharts';
+import { TrendingUp, TrendingDown, DollarSign, ArrowRight, Milestone } from 'lucide-react';
+import {
+  SERIES, GRID_STROKE, axisTick, axisLine,
+  TooltipShell, TooltipRow, ChartLegend, TableView,
+} from '@/components/charts/chartTheme';
+=======
   ResponsiveContainer, Legend, Cell, ReferenceLine, ComposedChart, Line
 } from 'recharts';
 import { TrendingUp, TrendingDown, DollarSign, ArrowRight } from 'lucide-react';
+>>>>>>> origin/master
 
 function formatM(val: number): string {
   if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
@@ -53,6 +64,47 @@ interface WaterfallDatum {
   iceCost: number;
 }
 
+<<<<<<< HEAD
+interface PaybackDatum {
+  year: number;
+  yearLabel: string;
+  cumulativeDelta: number;   // $M, discounted, EV − ICE
+  evCumulative: number;      // $M
+  iceCumulative: number;     // $M
+}
+
+/**
+ * Cumulative payback tooltip.
+ *
+ * The annual chart above shows the per-year delta; this one shows it summed,
+ * which is the only view in which "when does the EV pay back?" has an answer.
+ */
+function PaybackTooltip({
+  active, payload,
+}: {
+  active?: boolean;
+  payload?: { payload: PaybackDatum }[];
+}) {
+  const d = payload?.[0]?.payload;
+  if (!active || !d) return null;
+  const ahead = d.cumulativeDelta < 0;
+  return (
+    <TooltipShell
+      title={d.year === 0 ? 'Year 0 — investment' : `Year ${d.year}`}
+      subtitle={ahead ? 'EV is ahead on cumulative discounted cost' : 'EV is still behind'}
+    >
+      <TooltipRow label="EV cumulative" value={`$${d.evCumulative.toFixed(1)}M`} swatch={SERIES.ev} />
+      <TooltipRow label="ICE cumulative" value={`$${d.iceCumulative.toFixed(1)}M`} swatch={SERIES.ice} />
+      <TooltipRow
+        label="Position"
+        value={`${d.cumulativeDelta > 0 ? '+' : ''}$${d.cumulativeDelta.toFixed(1)}M`}
+      />
+    </TooltipShell>
+  );
+}
+
+=======
+>>>>>>> origin/master
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <p className="flex justify-between gap-3">
@@ -259,6 +311,47 @@ export default function FinancialCard() {
     isPositive: netDelta > 0,
   });
 
+<<<<<<< HEAD
+  // ── Section 4: cumulative payback ──
+  // annualCashFlows already carries the discounted per-year totals; nothing in
+  // the app summed them, so the crossover year — the number a CFO actually
+  // asks for — was not visible anywhere.
+  const paybackData: PaybackDatum[] = economics.annualCashFlows.reduce<PaybackDatum[]>(
+    (acc, cf) => {
+      const prev = acc[acc.length - 1];
+      const evCumulative = (prev?.evCumulative ?? 0) + cf.evTotalDiscounted / 1_000_000;
+      const iceCumulative = (prev?.iceCumulative ?? 0) + cf.iceTotalDiscounted / 1_000_000;
+      acc.push({
+        year: cf.year,
+        yearLabel: cf.year === 0 ? 'Y0' : `Y${cf.year}`,
+        cumulativeDelta: evCumulative - iceCumulative,
+        evCumulative,
+        iceCumulative,
+      });
+      return acc;
+    },
+    [],
+  );
+
+  // Linear interpolation between the two years that straddle zero.
+  const crossoverYear = (() => {
+    for (let i = 1; i < paybackData.length; i++) {
+      const prev = paybackData[i - 1].cumulativeDelta;
+      const curr = paybackData[i].cumulativeDelta;
+      if (prev > 0 && curr <= 0) {
+        const span = prev - curr;
+        return paybackData[i - 1].year + (span === 0 ? 0 : prev / span);
+      }
+    }
+    return null;
+  })();
+
+  const paybackVisible = isAnimating
+    ? paybackData.slice(0, Math.max(1, Math.min(11, Math.floor(gp * 10) + 2)))
+    : paybackData;
+
+=======
+>>>>>>> origin/master
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -352,7 +445,133 @@ export default function FinancialCard() {
         </p>
       </div>
 
+<<<<<<< HEAD
+      {/* ═══ SECTION 3: Cumulative payback — where the two bids cross ═══ */}
+      <div className="mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Milestone size={14} style={{ color: 'var(--text-muted)' }} />
+          <span className="text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
+            Cumulative Position — When Does the EV Pay Back?
+          </span>
+        </div>
+
+        <p className="text-[11px] leading-relaxed mb-3" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}>
+          Running total of discounted spend, EV minus ICE. It starts deep in the red because the
+          battery and the shore network are paid on day one, then climbs as cheaper energy accrues.
+          {crossoverYear !== null ? (
+            <> The two bids cross in <strong>year {crossoverYear.toFixed(1)}</strong> — inside the
+              10-year horizon.</>
+          ) : paybackData[paybackData.length - 1]?.cumulativeDelta <= 0 ? (
+            <> The EV is ahead from the start at these assumptions.</>
+          ) : (
+            <> They never cross inside 10 years: the EV is still{' '}
+              <strong>${paybackData[paybackData.length - 1]?.cumulativeDelta.toFixed(0)}M</strong>{' '}
+              behind at year 10.</>
+          )}
+        </p>
+
+        <div className="w-full min-w-0 overflow-hidden" style={{ height: 210 }}>
+          <ResponsiveContainer width="100%" height={210} minWidth={0}>
+            <ComposedChart data={paybackVisible} margin={{ top: 10, right: 18, left: -4, bottom: 18 }}>
+              <defs>
+                <linearGradient id="paybackFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--chart-warm)" stopOpacity={0.16} />
+                  <stop offset="100%" stopColor="var(--chart-warm)" stopOpacity={0.01} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke={GRID_STROKE} />
+              <XAxis
+                dataKey="yearLabel"
+                tick={axisTick}
+                axisLine={axisLine}
+                tickLine={false}
+                label={{
+                  value: 'Years from investment decision',
+                  position: 'insideBottom',
+                  offset: -10,
+                  fill: 'var(--text-muted)',
+                  fontSize: 10,
+                  fontFamily: 'var(--font-display)',
+                }}
+              />
+              <YAxis
+                tick={axisTick}
+                axisLine={axisLine}
+                tickLine={false}
+                width={52}
+                tickFormatter={(v: number) => `${v > 0 ? '+' : ''}$${v.toFixed(0)}M`}
+              />
+              <Tooltip content={<PaybackTooltip />} />
+              <ReferenceLine
+                y={0}
+                stroke="var(--chart-neutral)"
+                strokeWidth={1.5}
+                label={{
+                  value: 'break-even',
+                  position: 'insideBottomRight',
+                  fill: 'var(--text-muted)',
+                  fontSize: 10,
+                  fontFamily: 'var(--font-mono)',
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="cumulativeDelta"
+                fill="url(#paybackFill)"
+                stroke="none"
+                isAnimationActive={isAnimating}
+                animationDuration={500}
+              />
+              <Line
+                type="monotone"
+                dataKey="cumulativeDelta"
+                stroke={SERIES.warm}
+                strokeWidth={2}
+                dot={{ r: 3, fill: SERIES.warm, strokeWidth: 0 }}
+                isAnimationActive={isAnimating}
+                animationDuration={500}
+              />
+              {crossoverYear !== null && (
+                <ReferenceDot
+                  x={`Y${Math.round(crossoverYear)}`}
+                  y={0}
+                  r={5}
+                  fill={SERIES.good}
+                  stroke="var(--card-bg)"
+                  strokeWidth={2}
+                  label={{
+                    value: `pays back yr ${crossoverYear.toFixed(1)}`,
+                    position: 'top',
+                    fill: 'var(--text-secondary)',
+                    fontSize: 10,
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                />
+              )}
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+
+        <ChartLegend
+          items={[{ label: 'Cumulative discounted spend, EV − ICE', color: SERIES.warm }]}
+        />
+
+        <TableView
+          caption="Cumulative discounted cost position by year"
+          columns={['Year', 'EV cumulative', 'ICE cumulative', 'EV − ICE']}
+          rows={paybackData.map((d) => [
+            d.year === 0 ? 'Y0 (capex)' : `Y${d.year}`,
+            `$${d.evCumulative.toFixed(1)}M`,
+            `$${d.iceCumulative.toFixed(1)}M`,
+            `${d.cumulativeDelta > 0 ? '+' : ''}$${d.cumulativeDelta.toFixed(1)}M`,
+          ])}
+        />
+      </div>
+
+      {/* ═══ SECTION 4: NPV Waterfall — Component Breakdown ═══ */}
+=======
       {/* ═══ SECTION 3: NPV Waterfall — Component Breakdown ═══ */}
+>>>>>>> origin/master
       <div>
         <div className="flex items-center gap-2 mb-3">
           <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />

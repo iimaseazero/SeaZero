@@ -10,6 +10,12 @@ import {
   voyagesPerYear as voyagesPerYearFor,
   ANALYSIS_YEARS,
   COMMON_VESSEL_COST,
+<<<<<<< HEAD
+  EFFICIENCY_PACKAGE_COST,
+  iceVesselTotalCost,
+} from './constants';
+import { Assumptions, resolveAssumptions, infraCostPerPort } from './assumptions';
+=======
   BATTERY_COST_PER_MWH,
   EFFICIENCY_PACKAGE_COST,
   chargingInfraCostPerPort,
@@ -19,6 +25,7 @@ import {
   GRID_CO2_G_PER_KWH,
   iceVesselTotalCost,
 } from './constants';
+>>>>>>> origin/master
 
 /**
  * Compute 10-year discounted TCO for EV vs ICE,
@@ -27,8 +34,23 @@ import {
 export function computeEconomics(
   config: SimulationConfig,
   simResult: SimulationResult,
+<<<<<<< HEAD
+  assumptions?: Partial<Assumptions>,
 ): EconomicsResult {
   const {
+    mgoCostPerTonne,
+    electricityCostPerKWh,
+    batteryCostPerMWh,
+    chargingInfraPerPort,
+    gridCO2gPerKWh,
+    iceCO2TonnesPerMWh,
+  } = resolveAssumptions(assumptions);
+
+  const {
+=======
+): EconomicsResult {
+  const {
+>>>>>>> origin/master
     batteryMWh, efficiencyPackage, discountRate, portConfigs,
     carbonPricePerTon, chargePowerMW,
   } = config;
@@ -40,23 +62,38 @@ export function computeEconomics(
   // The $250M case figure is inclusive of both the battery (22.5%) and the
   // $30M efficiency package, so the package is netted out when it isn't bought
   // rather than added on top of a total that already contains it.
+<<<<<<< HEAD
+  const evBatteryCost = batteryCostPerMWh * batteryMWh;
+=======
   const evBatteryCost = BATTERY_COST_PER_MWH * batteryMWh;
+>>>>>>> origin/master
   const evEfficiencyCost = efficiencyPackage ? EFFICIENCY_PACKAGE_COST : 0;
   const evVesselCost = COMMON_VESSEL_COST; // hull, hotel, outfit — shared with the ICE design
 
   // $1M per port at the 12 MW design point, scaling with connector rating to
   // stand in for the grid reinforcement the case warns about.
   const chargingPorts = portConfigs.filter((p) => p.hasCharger).length;
+<<<<<<< HEAD
+  const evChargingInfraCost = chargingPorts * infraCostPerPort(chargingInfraPerPort, chargePowerMW);
+=======
   const evChargingInfraCost = chargingPorts * chargingInfraCostPerPort(chargePowerMW);
+>>>>>>> origin/master
 
   // ─── EV Annual OPEX ───
   // Billed on energy actually bought from the grid, which includes charging
   // losses and the pre-departure fill — not on the energy delivered to the props.
   const evEnergyPerVoyageKWh = simResult.totalGridEnergyMWh * 1000;
+<<<<<<< HEAD
+  const evAnnualEnergyCost = evEnergyPerVoyageKWh * electricityCostPerKWh * voyagesPerYear;
+
+  // The Norwegian grid is clean but not carbon-free (30 g/kWh).
+  const evCO2PerVoyage = (evEnergyPerVoyageKWh * gridCO2gPerKWh) / 1_000_000; // tonnes
+=======
   const evAnnualEnergyCost = evEnergyPerVoyageKWh * ELECTRICITY_COST_PER_KWH * voyagesPerYear;
 
   // The Norwegian grid is clean but not carbon-free (30 g/kWh).
   const evCO2PerVoyage = (evEnergyPerVoyageKWh * GRID_CO2_G_PER_KWH) / 1_000_000; // tonnes
+>>>>>>> origin/master
   const evAnnualCarbonCost = evCO2PerVoyage * carbonPricePerTon * voyagesPerYear;
 
   // ─── ICE CAPEX (Year 0) ───
@@ -71,10 +108,17 @@ export function computeEconomics(
   // ─── ICE Annual OPEX ───
   // Fuel scales with delivered energy, so it rises with speed — matching
   // Exhibit 9. A flat tonnes-per-hour rate would invert that relationship.
+<<<<<<< HEAD
+  const iceFuelPerVoyage = simResult.totalFuelTonnes * mgoCostPerTonne;
+  const iceAnnualFuel = iceFuelPerVoyage * voyagesPerYear;
+
+  const iceCO2PerVoyage = simResult.totalEnergyMWh * iceCO2TonnesPerMWh;
+=======
   const iceFuelPerVoyage = simResult.totalFuelTonnes * MGO_COST_PER_TONNE;
   const iceAnnualFuel = iceFuelPerVoyage * voyagesPerYear;
 
   const iceCO2PerVoyage = simResult.totalEnergyMWh * ICE_CO2_TONNES_PER_MWH;
+>>>>>>> origin/master
   const iceAnnualCarbonCost = iceCO2PerVoyage * carbonPricePerTon * voyagesPerYear;
 
   // ─── Year-by-year cash flows ───

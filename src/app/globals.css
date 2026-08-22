@@ -44,6 +44,30 @@
   --glass: #18181B; /* zinc-900 */
   --glass-strong: #27272A; /* zinc-800 */
 
+<<<<<<< HEAD
+  /* ─── Chart series palette ─────────────────────────────────────────────
+   * Deliberately NOT the UI accent tokens above. Chart marks sit on card
+   * surfaces and have to stay separable under colour-vision deficiency in
+   * BOTH themes, so these are pinned to the 600-weight steps, which fall
+   * inside the OKLCH lightness band for a dark surface (L 0.48-0.67) as
+   * well as a light one (L 0.43-0.77). The UI tokens use the lighter 500
+   * steps, which read better as glows and borders but fail that band.
+   *
+   * Verified with the dataviz palette validator: every adjacent pair below
+   * clears CVD dE 19+ (protan/deutan) against both #09090B and #F8FAFC.
+   * Do not swap these for --cyan / --red / --amber.
+   */
+  --chart-ev: #0891B2;      /* cyan-600  — battery-electric series (cool pole) */
+  --chart-ice: #DC2626;     /* red-600   — conventional / diesel series */
+  --chart-warm: #EA580C;    /* orange-600 — warm pole of the diverging scale */
+  --chart-demand: #D97706;  /* amber-600 — energy demand / drain */
+  --chart-accent: #8B5CF6;  /* violet-500 — fourth categorical slot */
+  --chart-good: #059669;    /* green-600 — favourable outcome */
+  --chart-neutral: #71717A; /* zinc-500  — diverging midpoint, reads as "nothing" */
+  --chart-grid: rgba(148, 163, 184, 0.10);
+
+=======
+>>>>>>> origin/master
   /* ─── Fonts ─── */
   --font-display: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -297,3 +321,17 @@ input[type="range"]::-moz-range-thumb {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
+<<<<<<< HEAD
+
+/* ─── Leaderboard tabular grid ───────────────────────────────────────────
+ * Two-column stack on phones, one row per bid from md up. Declared here
+ * rather than inline so the header and the rows can never drift apart.
+ */
+@media (min-width: 768px) {
+  .leaderboard-row {
+    display: grid;
+    grid-template-columns: 40px 1fr 70px 76px 92px 78px 62px 96px;
+  }
+}
+=======
+>>>>>>> origin/master
