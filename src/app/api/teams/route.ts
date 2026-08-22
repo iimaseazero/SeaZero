@@ -1,22 +1,16 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { d1Query, d1Execute } from '@/lib/d1';
-<<<<<<< HEAD
 import { requireUser, requireAdmin } from '@/lib/apiAuth';
-=======
->>>>>>> origin/master
 
 // ─── GET /api/teams — list all teams ───
 
 export async function GET() {
   try {
-<<<<<<< HEAD
     // Team list feeds the compete-page selector — any signed-in user.
     const auth = await requireUser();
     if (auth.response) return auth.response;
 
-=======
->>>>>>> origin/master
     const teams = await d1Query<{
       id: string;
       name: string;
@@ -43,13 +37,10 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-<<<<<<< HEAD
     // Teams are created from the admin console only.
     const auth = await requireAdmin();
     if (auth.response) return auth.response;
 
-=======
->>>>>>> origin/master
     const body = await request.json();
     const { name, color } = body;
 
@@ -76,13 +67,10 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-<<<<<<< HEAD
     // Deleting a team cascades to its submissions — admin only.
     const auth = await requireAdmin();
     if (auth.response) return auth.response;
 
-=======
->>>>>>> origin/master
     const { searchParams } = new URL(request.url);
     const teamId = searchParams.get('id');
 

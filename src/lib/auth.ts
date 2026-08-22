@@ -8,7 +8,6 @@ import bcrypt from 'bcryptjs';
 
 // ─── JWT ───
 
-<<<<<<< HEAD
 const DEV_FALLBACK_SECRET = 'dev-secret-change-me';
 const JWT_ISSUER = 'sea-zero';
 const JWT_EXPIRY = '7d';
@@ -55,13 +54,6 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(DEV_FALLBACK_SECRET);
 }
 
-=======
-const JWT_SECRET_RAW = process.env.JWT_SECRET ?? 'dev-secret-change-me';
-const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_RAW);
-const JWT_ISSUER = 'sea-zero';
-const JWT_EXPIRY = '7d';
-
->>>>>>> origin/master
 export interface TokenPayload extends JWTPayload {
   userId: string;
   email: string;
@@ -74,21 +66,13 @@ export async function signToken(userId: string, email: string): Promise<string> 
     .setIssuer(JWT_ISSUER)
     .setIssuedAt()
     .setExpirationTime(JWT_EXPIRY)
-<<<<<<< HEAD
     .sign(getSecret());
-=======
-    .sign(JWT_SECRET);
->>>>>>> origin/master
 }
 
 /** Verify a JWT and return its payload, or null if invalid/expired. */
 export async function verifyToken(token: string): Promise<TokenPayload | null> {
   try {
-<<<<<<< HEAD
     const { payload } = await jwtVerify(token, getSecret(), { issuer: JWT_ISSUER });
-=======
-    const { payload } = await jwtVerify(token, JWT_SECRET, { issuer: JWT_ISSUER });
->>>>>>> origin/master
     if (typeof payload.userId !== 'string' || typeof payload.email !== 'string') {
       return null;
     }

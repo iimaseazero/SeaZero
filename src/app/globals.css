@@ -44,7 +44,6 @@
   --glass: #18181B; /* zinc-900 */
   --glass-strong: #27272A; /* zinc-800 */
 
-<<<<<<< HEAD
   /* ─── Chart series palette ─────────────────────────────────────────────
    * Deliberately NOT the UI accent tokens above. Chart marks sit on card
    * surfaces and have to stay separable under colour-vision deficiency in
@@ -66,8 +65,6 @@
   --chart-neutral: #71717A; /* zinc-500  — diverging midpoint, reads as "nothing" */
   --chart-grid: rgba(148, 163, 184, 0.10);
 
-=======
->>>>>>> origin/master
   /* ─── Fonts ─── */
   --font-display: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -321,7 +318,6 @@ input[type="range"]::-moz-range-thumb {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
-<<<<<<< HEAD
 
 /* ─── Leaderboard tabular grid ───────────────────────────────────────────
  * Two-column stack on phones, one row per bid from md up. Declared here
@@ -333,5 +329,3 @@ input[type="range"]::-moz-range-thumb {
     grid-template-columns: 40px 1fr 70px 76px 92px 78px 62px 96px;
   }
 }
-=======
->>>>>>> origin/master

@@ -2,23 +2,17 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { d1Query, d1Execute } from '@/lib/d1';
 import { getSessionUser } from '@/lib/session';
-<<<<<<< HEAD
 import { requireUser } from '@/lib/apiAuth';
-=======
->>>>>>> origin/master
 
 // ─── GET /api/frozen-controls — load the current frozen controls (all users) ───
 
 export async function GET() {
   try {
-<<<<<<< HEAD
     // Which controls an instructor has locked is not secret, but there is no
     // reason to serve it to the open internet either.
     const auth = await requireUser();
     if (auth.response) return auth.response;
 
-=======
->>>>>>> origin/master
     const rows = await d1Query<{
       locked_keys: string;
       updated_at: number;
