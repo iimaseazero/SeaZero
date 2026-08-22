@@ -4,7 +4,6 @@ import { useSimStore } from '@/store/useSimStore';
 import { motion } from 'framer-motion';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-<<<<<<< HEAD
   ResponsiveContainer, Legend, Cell, ReferenceLine, ComposedChart, Line,
   ReferenceDot, Area
 } from 'recharts';
@@ -13,11 +12,6 @@ import {
   SERIES, GRID_STROKE, axisTick, axisLine,
   TooltipShell, TooltipRow, ChartLegend, TableView,
 } from '@/components/charts/chartTheme';
-=======
-  ResponsiveContainer, Legend, Cell, ReferenceLine, ComposedChart, Line
-} from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, ArrowRight } from 'lucide-react';
->>>>>>> origin/master
 
 function formatM(val: number): string {
   if (Math.abs(val) >= 1_000_000_000) return `$${(val / 1_000_000_000).toFixed(1)}B`;
@@ -64,7 +58,6 @@ interface WaterfallDatum {
   iceCost: number;
 }
 
-<<<<<<< HEAD
 interface PaybackDatum {
   year: number;
   yearLabel: string;
@@ -103,8 +96,6 @@ function PaybackTooltip({
   );
 }
 
-=======
->>>>>>> origin/master
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <p className="flex justify-between gap-3">
@@ -311,7 +302,6 @@ export default function FinancialCard() {
     isPositive: netDelta > 0,
   });
 
-<<<<<<< HEAD
   // ── Section 4: cumulative payback ──
   // annualCashFlows already carries the discounted per-year totals; nothing in
   // the app summed them, so the crossover year — the number a CFO actually
@@ -350,8 +340,6 @@ export default function FinancialCard() {
     ? paybackData.slice(0, Math.max(1, Math.min(11, Math.floor(gp * 10) + 2)))
     : paybackData;
 
-=======
->>>>>>> origin/master
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -445,7 +433,6 @@ export default function FinancialCard() {
         </p>
       </div>
 
-<<<<<<< HEAD
       {/* ═══ SECTION 3: Cumulative payback — where the two bids cross ═══ */}
       <div className="mb-5">
         <div className="flex items-center gap-2 mb-3">
@@ -569,9 +556,6 @@ export default function FinancialCard() {
       </div>
 
       {/* ═══ SECTION 4: NPV Waterfall — Component Breakdown ═══ */}
-=======
-      {/* ═══ SECTION 3: NPV Waterfall — Component Breakdown ═══ */}
->>>>>>> origin/master
       <div>
         <div className="flex items-center gap-2 mb-3">
           <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />

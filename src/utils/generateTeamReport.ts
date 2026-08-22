@@ -4,7 +4,6 @@
 // and environmental emissions. Can be opened offline or printed directly to PDF.
 
 import { Submission } from '@/store/persistence';
-<<<<<<< HEAD
 import { ScoreBreakdown } from '@/engine/scoring';
 
 /**
@@ -35,8 +34,6 @@ function esc(value: unknown): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 }
-=======
->>>>>>> origin/master
 
 function formatMoney(val: number): string {
   const abs = Math.abs(val);
@@ -47,7 +44,6 @@ function formatMoney(val: number): string {
   return `${sign}$${abs.toFixed(0)}`;
 }
 
-<<<<<<< HEAD
 /**
  * Submissions stored before the scoring rewrite carry the old four-field
  * breakdown and no scenario list. The Report button on the leaderboard fires
@@ -60,10 +56,6 @@ function isCurrentBreakdown(b: unknown): b is ScoreBreakdown {
 export function generateTeamReportHtml(sub: Submission): string {
   const { teamName, teamColor, config, simResult, economics, emissions, score, breakdown, submittedAt } = sub;
   const scored = isCurrentBreakdown(breakdown) ? breakdown : null;
-=======
-export function generateTeamReportHtml(sub: Submission): string {
-  const { teamName, teamColor, config, simResult, economics, emissions, score, breakdown, submittedAt } = sub;
->>>>>>> origin/master
   const isFeasible = simResult.feasible;
   const submittedDateStr = new Date(submittedAt).toLocaleString('en-US', {
     dateStyle: 'full',
@@ -133,11 +125,7 @@ export function generateTeamReportHtml(sub: Submission): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
   <title>Team Performance Report — ${esc(teamName)}</title>
-=======
-  <title>Team Performance Report — ${teamName}</title>
->>>>>>> origin/master
   <style>
     :root {
       --bg: #09090b;
@@ -289,11 +277,7 @@ export function generateTeamReportHtml(sub: Submission): string {
       <div>
         <div class="team-badge">
           <div class="team-dot"></div>
-<<<<<<< HEAD
           ${esc(teamName)}
-=======
-          ${teamName}
->>>>>>> origin/master
         </div>
         <div class="meta">
           Submitted: ${submittedDateStr} &bull; Submission ID: ${sub.id}
@@ -302,7 +286,6 @@ export function generateTeamReportHtml(sub: Submission): string {
           <span class="badge ${isFeasible ? 'badge-feasible' : 'badge-infeasible'}">
             ${isFeasible ? '✓ 100% Feasible Voyage' : '✕ Infeasible Configuration'}
           </span>
-<<<<<<< HEAD
           ${!isFeasible ? `<p style="color: var(--red); font-size: 11px; margin-top: 6px;"><strong>Reason:</strong> ${esc(simResult.infeasibleReason)}</p>` : ''}
         </div>
       </div>
@@ -310,22 +293,12 @@ export function generateTeamReportHtml(sub: Submission): string {
         <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Bid Score</div>
         <div class="score-val">${score.toFixed(0)}</div>
         <div style="font-size: 10px; color: var(--text-muted);">out of 100 &middot; higher is better</div>
-=======
-          ${!isFeasible ? `<p style="color: var(--red); font-size: 11px; margin-top: 6px;"><strong>Reason:</strong> ${simResult.infeasibleReason}</p>` : ''}
-        </div>
-      </div>
-      <div class="score-box">
-        <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Overall Score</div>
-        <div class="score-val">${score.toFixed(1)}</div>
-        <div style="font-size: 10px; color: var(--text-muted);">(Lower is better)</div>
->>>>>>> origin/master
       </div>
     </div>
 
     <!-- Executive Summary & Score Breakdown -->
     <div class="section">
       <div class="section-title">Score Breakdown</div>
-<<<<<<< HEAD
       ${scored ? `
       <div class="grid">
         <div class="metric-card">
@@ -381,28 +354,6 @@ export function generateTeamReportHtml(sub: Submission): string {
       </table>
     </div>` : ''}
 
-=======
-      <div class="grid">
-        <div class="metric-card">
-          <div class="metric-label">Feasibility Bonus</div>
-          <div class="metric-value" style="color: ${breakdown.feasibilityBonus < 0 ? 'var(--green)' : 'var(--text-muted)'}">${breakdown.feasibilityBonus}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">Dead Zone Penalty</div>
-          <div class="metric-value" style="color: ${breakdown.deadZonePenalty > 0 ? 'var(--red)' : 'var(--green)'}">${breakdown.deadZonePenalty}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">NPV Score ($1M = 1pt)</div>
-          <div class="metric-value" style="color: ${breakdown.npvScore < 0 ? 'var(--green)' : 'var(--amber)'}">${breakdown.npvScore}</div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-label">CO₂ Score (1kt = -1pt)</div>
-          <div class="metric-value" style="color: ${breakdown.co2Score < 0 ? 'var(--green)' : 'var(--red)'}">${breakdown.co2Score}</div>
-        </div>
-      </div>
-    </div>
-
->>>>>>> origin/master
     <!-- Team Decisions / Configuration -->
     <div class="section">
       <div class="section-title">1. Strategic Decisions & Configuration</div>
