@@ -152,7 +152,7 @@ export default function TeamManager() {
               <Flag size={28} />
             </div>
             <p className="text-sm" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-              No teams yet. Create one to start competing!
+              No teams yet.
             </p>
           </div>
         )}

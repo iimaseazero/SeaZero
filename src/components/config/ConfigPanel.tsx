@@ -165,8 +165,8 @@ export default function ConfigPanel() {
           </div>
           <p className="text-[10px] mt-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
             {config.voyageMode === 'roundtrip'
-              ? 'Bergen \u2192 Kirkenes \u2192 Bergen \u2014 67 port calls, the service Hurtigruten actually runs.'
-              : 'Bergen \u2192 Kirkenes only \u2014 the 34 calls tabulated in Exhibit 2.'}
+              ? 'Bergen \u2192 Kirkenes \u2192 Bergen. 67 port calls.'
+              : 'Bergen \u2192 Kirkenes only. The 34 calls in Exhibit 2.'}
           </p>
         </div>
 
@@ -378,7 +378,7 @@ export default function ConfigPanel() {
                           backgroundColor: pc.hasCharger ? 'rgba(56,217,200,0.08)' : 'transparent',
                           color: pc.hasCharger ? 'var(--cyan)' : 'var(--text-muted)',
                         }}
-                        title="Toggle charging station — allows the ship to recharge at this port"
+                        title="Charging station"
                       >
                         <Zap size={14} />
                       </button>
@@ -392,7 +392,7 @@ export default function ConfigPanel() {
                           opacity: pc.hasCharger ? 1 : 0.35,
                           cursor: pc.hasCharger ? 'pointer' : 'not-allowed',
                         }}
-                        title={pc.hasCharger ? "Toggle buffer battery — stores grid energy locally for faster 12 MW charging on weak grids" : "Enable charger first to use buffer battery"}
+                        title={pc.hasCharger ? "Buffer battery: stores grid energy locally for full-rate charging on a weak grid" : "Enable the charger first"}
                         disabled={!pc.hasCharger}
                       >
                         <Battery size={14} />
@@ -538,7 +538,7 @@ export default function ConfigPanel() {
           className="text-[10px] mt-1.5 leading-snug text-center"
           style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
         >
-          15 sheets — every leg, cash flow and analysis behind these charts
+          15 sheets
         </p>
       </div>
     </div>

@@ -445,14 +445,14 @@ export function simulate(
     const late = scheduleDeviationHours;
     reasons.push(
       late > 0
-        ? `Voyage runs ${late.toFixed(1)} h behind the Exhibit 2 timetable (${scheduledHours.toFixed(1)} h) — the Kystruten contract requires daily calls at every port`
+        ? `Voyage runs ${late.toFixed(1)} h behind the Exhibit 2 timetable (${scheduledHours.toFixed(1)} h). The Kystruten contract requires daily calls at every port`
         : `Voyage deviates ${Math.abs(late).toFixed(1)} h from the Exhibit 2 timetable`,
     );
   }
 
   if (trackBattery) {
     if (!originHasCharger && originPort) {
-      reasons.push(`No charger at ${originPort.name} — the ship cannot depart fully charged`);
+      reasons.push(`No charger at ${originPort.name}. The ship cannot depart fully charged`);
     }
     if (deadZoneCount > 0) {
       const firstDead = legResults.find((l) => l.isDeadZone);
@@ -465,7 +465,7 @@ export function simulate(
     }
     if (energyBalanceMWh < 0) {
       reasons.push(
-        `Timetable offers only ${chargingCapacityMWh.toFixed(0)} MWh of charging window against ${totalGridEnergy.toFixed(0)} MWh of demand — ${Math.abs(energyBalanceMWh).toFixed(0)} MWh short even with perfect charging`,
+        `Timetable offers only ${chargingCapacityMWh.toFixed(0)} MWh of charging window against ${totalGridEnergy.toFixed(0)} MWh of demand. ${Math.abs(energyBalanceMWh).toFixed(0)} MWh short even with perfect charging`,
       );
     }
   }

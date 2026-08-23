@@ -179,7 +179,7 @@ export default function OperationalCard() {
     const short = leg.toPortName.substring(0, 3).toUpperCase();
 
     fullChartData.push({
-      port: `${leg.toPortName} — arrival (${dirWord})`,
+      port: `${leg.toPortName}, arrival (${dirWord})`,
       portShort: `${short}${dirMark}↓`,
       soc: socArr,
       index: leg.voyageIndex + 0.5,
@@ -187,7 +187,7 @@ export default function OperationalCard() {
     });
 
     fullChartData.push({
-      port: `${leg.toPortName} — departure (${dirWord})`,
+      port: `${leg.toPortName}, departure (${dirWord})`,
       portShort: `${short}${dirMark}↑`,
       soc: socDep,
       index: leg.voyageIndex + 1,
@@ -277,7 +277,7 @@ export default function OperationalCard() {
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--cyan)' }} />
         <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-          {isIce ? 'Operational — Fuel & Schedule' : 'Operational — State of Charge'}
+          {isIce ? 'Fuel and schedule' : 'State of charge'}
         </h3>
         {isAnimating && (
           <span className="ml-auto text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-semibold tracking-wide uppercase flex items-center gap-1.5" style={{
@@ -474,20 +474,17 @@ export default function OperationalCard() {
       {!isIce && (
         <div className="pt-5 mt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
           <SectionLabel icon={<BatteryCharging size={14} />}>
-            Energy in vs energy out, call by call
+            Energy in vs out, per call
           </SectionLabel>
 
           <p className="text-[11px] leading-relaxed mb-3" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}>
-            The trace above shows the two netting out; this shows them separately, so a port that
-            cannot keep up is visible before the battery gets there. Bars below the line are what the
-            leg consumed, above it what the port put back.
+            Below the line: energy the leg consumed. Above: energy the port put back.
             {deficitCalls > 0 && (
-              <> <strong>{deficitCalls}</strong> of {callData.length} calls end the leg with less energy
-                than it took to get there.</>
+              <> <strong>{deficitCalls}</strong> of {callData.length} calls end with less than they
+                took.</>
             )}
             {throttledCalls > 0 && (
-              <> <strong>{throttledCalls}</strong> {throttledCalls === 1 ? 'is' : 'are'} limited by the
-                local grid rather than the connector.</>
+              <> <strong>{throttledCalls}</strong> limited by the local grid, not the connector.</>
             )}
           </p>
 
@@ -568,16 +565,16 @@ export default function OperationalCard() {
             </span>
           </div>
           <p className="text-[11px] leading-relaxed" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}>
-            The timetable leaves <strong>{simResult.chargingWindowHours.toFixed(1)} h</strong> plugged in across{' '}
-            {simResult.chargingPortCount} charger{simResult.chargingPortCount === 1 ? '' : 's'} — at{' '}
+            <strong>{simResult.chargingWindowHours.toFixed(1)} h</strong> plugged in across{' '}
+            {simResult.chargingPortCount} charger{simResult.chargingPortCount === 1 ? '' : 's'}. At{' '}
             {config.chargePowerMW} MW that is at most{' '}
             <strong>{simResult.chargingCapacityMWh.toFixed(0)} MWh</strong>, against{' '}
             <strong>{simResult.totalGridEnergyMWh.toFixed(0)} MWh</strong> of demand.
             {energyShort
-              ? ' Moving chargers around cannot close this — the dwell times, the connector rating or the ship have to change.'
-              : ' Enough in aggregate; the remaining question is whether it arrives where it is needed.'}
+              ? ' Charger placement cannot close this. The dwell times, the connector rating or the ship have to change.'
+              : ' Enough in aggregate.'}
             {scheduleSlip > 1 && (
-              <> Holding the reserve at every port would need <strong>{Math.round(scheduleSlip)} extra minutes</strong> of dwell in total.</>
+              <> Holding the reserve everywhere needs <strong>{Math.round(scheduleSlip)} extra minutes</strong> of dwell.</>
             )}
           </p>
         </div>

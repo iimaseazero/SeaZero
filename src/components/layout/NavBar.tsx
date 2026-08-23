@@ -92,7 +92,7 @@ export default function NavBar() {
               Sea Zero
             </span>
             <span className="text-[10px] font-medium hidden sm:block" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-              Coastal Route Electrification Simulator
+              Route electrification
             </span>
           </div>
         </Link>

@@ -60,7 +60,7 @@ export default function ExportButton({ compact = false }: { compact?: boolean })
       title={
         error
           ? error
-          : 'Download every number behind these charts as a multi-sheet .xlsx — configuration, ports, every voyage leg, cash flows, emissions, all four decision analyses, the stress panel and the case constants.'
+          : 'Download the full model as a multi-sheet .xlsx'
       }
       className={`flex items-center justify-center gap-1.5 rounded-lg font-semibold uppercase tracking-wider transition-all ${
         compact ? 'px-2.5 py-2 text-[10px]' : 'w-full px-3 py-2.5 text-[11px]'

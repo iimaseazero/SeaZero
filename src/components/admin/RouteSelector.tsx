@@ -42,7 +42,7 @@ export default function RouteSelector() {
         className="text-xs -mt-2"
         style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}
       >
-        Select a famous sea route to simulate, or keep the default Hurtigruten corridor
+        Pick a route to simulate, or keep the Hurtigruten default
       </p>
 
       {/* Current route indicator */}
@@ -118,7 +118,7 @@ export default function RouteSelector() {
                       )}
                     </div>
                     <p className="text-[11px] mb-2" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-                      Bergen → Kirkenes along the Norwegian coast — the original Sea Zero case study route
+                      Bergen → Kirkenes along the Norwegian coast. The Sea Zero case route.
                     </p>
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="flex items-center gap-1 text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>
@@ -151,7 +151,7 @@ export default function RouteSelector() {
               <div className="flex items-center gap-3 py-1">
                 <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
                 <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                  Long-Haul Ocean Routes
+                  Long-Haul Routes
                 </span>
                 <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
               </div>
@@ -221,7 +221,7 @@ export default function RouteSelector() {
                     className="inline-block w-1.5 h-1.5 rounded-full"
                     style={{ background: 'var(--green)', animation: 'shimmer 2s ease-in-out infinite' }}
                   />
-                  EV-Feasible Short Routes
+                  Short Routes
                 </span>
                 <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
               </div>

@@ -149,7 +149,7 @@ export default function FreezeManager() {
       </div>
 
       <p className="text-xs mb-4" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-        Toggle controls to freeze them at their current values. Frozen controls are locked for all users and cannot be changed until unfrozen.
+        Frozen controls lock at their current values for all users until unfrozen.
       </p>
 
       {/* Control groups */}

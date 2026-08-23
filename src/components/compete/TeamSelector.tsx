@@ -29,7 +29,7 @@ export default function TeamSelector({ selectedTeam, onSelect }: TeamSelectorPro
             No Teams Available
           </p>
           <p className="text-xs" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-            Go to the Admin page to create teams first
+            Create teams on the Admin page first
           </p>
         </div>
       </div>

@@ -126,7 +126,7 @@ export default function DecisionCard() {
           className="text-xs sm:text-sm font-semibold uppercase tracking-wider"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}
         >
-          Decision Surface — Felin’s Two Questions
+          Decision surface
         </h3>
       </div>
 
@@ -139,20 +139,15 @@ export default function DecisionCard() {
         className="text-[11px] leading-relaxed mb-3"
         style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
       >
-        Every cell is a full voyage simulation on your current charger network, always run as a
-        battery vessel — this is the “if we went electric, what would it take?” question, so it stays
-        answerable while you are looking at the conventional option. Colour is the worst
-        state-of-charge margin the ship reaches; the neutral band is the reserve floor itself, so
-        anything warm strands the vessel.
+        Always simulated as a battery vessel, so it stays useful on the conventional option.
         {frontier.cheapestFeasible ? (
-          <> The cheapest combination that completes the voyage is{' '}
+          <> Cheapest combination that completes the voyage:{' '}
             <strong>
               {frontier.cheapestFeasible.batteryMWh} MWh at {frontier.cheapestFeasible.chargePowerMW} MW
-            </strong>{' '}
-            ({formatMoney(frontier.cheapestFeasible.evTotalTCO)} 10-year TCO).
+            </strong>, {formatMoney(frontier.cheapestFeasible.evTotalTCO)} over 10 years.
           </>
         ) : (
-          <> No combination on this grid completes the voyage — the charger network itself has to change.</>
+          <> Nothing on this grid completes the voyage. The charger network has to change.</>
         )}
       </p>
 
@@ -287,7 +282,7 @@ export default function DecisionCard() {
           </>
         ) : (
           <span className="text-[11px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-            Hover a cell to read its numbers. White ring = your current setting, green ring = cheapest that completes.
+            White ring: current setting. Green ring: cheapest that completes.
           </span>
         )}
       </div>
@@ -328,26 +323,25 @@ export default function DecisionCard() {
       {/* ═══ 2. Charger build-up ═══ */}
       <div className="pt-5 mt-5" style={{ borderTop: '1px solid var(--card-border)' }}>
         <SectionLabel icon={<PlugZap size={14} />}>
-          Marginal value of the Nth charger
+          Chargers added
         </SectionLabel>
 
         <p
           className="text-[11px] leading-relaxed mb-3"
           style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
         >
-          Chargers added greedily — at each step, whichever remaining port buys the most margin.
+          Added greedily, best margin first.
           {firstFeasible ? (
-            <> The voyage first completes at <strong>{firstFeasible.chargerCount} chargers</strong>{' '}
-              ({formatMoney(firstFeasible.infraCapex)} of shore investment).</>
+            <> Voyage first completes at <strong>{firstFeasible.chargerCount} chargers</strong>,{' '}
+              {formatMoney(firstFeasible.infraCapex)} of shore investment.</>
           ) : (
-            <> No number of chargers makes this configuration complete the voyage — the constraint is
-              the battery, the connector or the timetable, not the network.</>
+            <> No number of chargers completes this voyage. The constraint is the battery, the
+              connector or the timetable.</>
           )}
           {knee && knee.chargerCount < buildUp.length && (
-            <> Past <strong>{knee.chargerCount}</strong>, each further charger buys under a point of
-              margin.</>
+            <> Past <strong>{knee.chargerCount}</strong>, each further charger buys under a point.</>
           )}
-          {' '}You currently have {currentChargers}.
+          {' '}You have {currentChargers}.
         </p>
 
         <div className="w-full min-w-0 overflow-hidden" style={{ height: 220 }}>

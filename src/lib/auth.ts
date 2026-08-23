@@ -49,7 +49,7 @@ function getSecret(): Uint8Array {
 
   if (!warnedAboutDevSecret) {
     warnedAboutDevSecret = true;
-    console.warn('[auth] JWT_SECRET not set — using the development fallback. Never deploy this way.');
+    console.warn('[auth] JWT_SECRET not set. Using the development fallback; never deploy this way.');
   }
   return new TextEncoder().encode(DEV_FALLBACK_SECRET);
 }

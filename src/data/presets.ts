@@ -86,7 +86,7 @@ export function generatePresetsForRoute(ports: Port[]): Preset[] {
       id: 'case-design',
       name: 'Case Design',
       description:
-        `70 MWh battery, ${hubs.length} hub chargers at ${DESIGN_CHARGE_POWER_MW} MW — Hurtigruten's starting point as of Nov 2024`,
+        `70 MWh battery, ${hubs.length} hub chargers at ${DESIGN_CHARGE_POWER_MW} MW. Hurtigruten's starting point, Nov 2024.`,
       config: {
         ...BASE_CONFIG,
         batteryMWh: 70,
@@ -97,7 +97,7 @@ export function generatePresetsForRoute(ports: Port[]): Preset[] {
       id: 'dense-network',
       name: 'Dense Network',
       description:
-        `70 MWh, chargers at all ${allIds.length} ports with buffer batteries off the strong grid — the most the ${DESIGN_CHARGE_POWER_MW} MW design can do`,
+        `70 MWh, chargers at all ${allIds.length} ports, buffer batteries off the strong grid. The most a ${DESIGN_CHARGE_POWER_MW} MW design can do.`,
       config: {
         ...BASE_CONFIG,
         batteryMWh: 70,
@@ -108,7 +108,7 @@ export function generatePresetsForRoute(ports: Port[]): Preset[] {
       id: 'grid-upgrade',
       name: 'Grid Upgrade',
       description:
-        '70 MWh, 16 MW connectors and 2-minute automated hookup at every port — the cheapest configuration that actually completes the voyage',
+        '70 MWh, 16 MW connectors, 2-minute hookup at every port. The cheapest setup that completes the voyage.',
       config: {
         ...BASE_CONFIG,
         batteryMWh: 70,
@@ -120,7 +120,7 @@ export function generatePresetsForRoute(ports: Port[]): Preset[] {
     {
       id: 'ice-benchmark',
       name: 'ICE Benchmark',
-      description: 'Efficiency-upgraded conventional vessel — the lower-risk bid',
+      description: 'Efficiency-upgraded conventional vessel. The lower-risk bid.',
       config: {
         ...BASE_CONFIG,
         vesselType: 'ice',

@@ -5,8 +5,8 @@ import LayoutShell from "@/components/layout/LayoutShell";
 import ThemeProvider from "@/components/layout/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Sea Zero — Coastal Route Electrification Simulator",
-  description: "Digital twin of coastal ferry routes. Simulate an all-electric battery vessel and explore feasibility, economics, and emissions.",
+  title: "Sea Zero",
+  description: "Route electrification simulator for the Kystruten coastal service.",
 };
 
 export default function RootLayout({

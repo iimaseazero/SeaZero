@@ -276,7 +276,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'mediterranean',
     name: 'Mediterranean Crossing',
-    description: 'Barcelona → Athens via the Western and Eastern Mediterranean, calling at iconic cruise ports along the Italian and Greek coasts',
+    description: 'Barcelona → Athens via the Western and Eastern Mediterranean, calling at Italian and Greek ports',
     region: 'Mediterranean',
     emoji: '🏛️',
     category: 'long-haul',
@@ -287,7 +287,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'baltic',
     name: 'Baltic Explorer',
-    description: 'Copenhagen → St Petersburg through the Baltic Sea, visiting historic Hanseatic and Nordic capitals',
+    description: 'Copenhagen → St Petersburg through the Baltic Sea, calling at Hanseatic and Nordic capitals',
     region: 'Baltic Sea',
     emoji: '⚓',
     category: 'long-haul',
@@ -332,7 +332,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'seto-inland-sea',
     name: 'Seto Inland Sea',
-    description: 'Osaka → Hiroshima through Japan\'s sheltered Inland Sea — 14 ports averaging 30 km apart, ideal for battery-electric vessels',
+    description: 'Osaka → Hiroshima through the Japanese Inland Sea. 14 ports averaging 30 km apart',
     region: 'Japan',
     emoji: '🛳️',
     category: 'dense-short',
@@ -343,7 +343,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'greek-cyclades',
     name: 'Greek Cyclades',
-    description: 'Piraeus → Mykonos island-hopping through 15 Cycladic islands — short legs with frequent charging stops at each port',
+    description: 'Piraeus → Mykonos through 15 Cycladic islands. Short legs, a charging stop at every port',
     region: 'Greece',
     emoji: '🏛️',
     category: 'dense-short',
@@ -354,7 +354,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'puget-sound',
     name: 'Puget Sound & San Juan Islands',
-    description: 'Seattle → Victoria through Washington\'s island ferry network — 12 ports with legs as short as 6 km, strong grid throughout',
+    description: 'Seattle → Victoria through the Washington island ferry network. 12 ports, legs as short as 6 km, strong grid throughout',
     region: 'Pacific NW',
     emoji: '🌲',
     category: 'dense-short',
@@ -365,7 +365,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'danish-straits',
     name: 'Danish Straits Loop',
-    description: 'Copenhagen roundtrip through the Danish islands and Jutland — 15 ports, strong Scandinavian grid, Denmark\'s dense ferry network',
+    description: 'Copenhagen roundtrip through the Danish islands and Jutland. 15 ports, strong Scandinavian grid',
     region: 'Denmark',
     emoji: '🇩🇰',
     category: 'dense-short',
@@ -376,7 +376,7 @@ export const SEA_ROUTES: SeaRoute[] = [
   {
     id: 'canary-islands',
     name: 'Canary Islands Loop',
-    description: 'Tenerife roundtrip visiting all 7 Canary Islands — 12 ports with inter-island hops, strong grid at main ports',
+    description: 'Tenerife roundtrip across all 7 Canary Islands. 12 ports, strong grid at the main ones',
     region: 'Canaries',
     emoji: '🌋',
     category: 'dense-short',

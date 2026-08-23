@@ -28,7 +28,7 @@ function d1Endpoint(): { url: string; token: string } {
 
   if (missing.length > 0) {
     throw new Error(
-      `Cloudflare D1 is not configured — missing ${missing.join(', ')}. ` +
+      `Cloudflare D1 is not configured. Missing ${missing.join(', ')}. ` +
       'Set these in your hosting provider environment variables. Everything except ' +
       'sign-in, teams, submissions and admin works without them.',
     );

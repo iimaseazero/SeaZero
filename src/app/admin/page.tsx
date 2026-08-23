@@ -178,7 +178,7 @@ export default function AdminPage() {
           <p className="text-xs mt-3 flex items-start gap-1.5" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
             <Lightbulb size={14} className="flex-shrink-0 text-cyan-400 mt-0.5" />
             <span>
-              <strong>distanceToNextKm</strong> is optional — if omitted, distances are estimated using the Haversine formula × 1.3 for coastal routing.
+              <strong>distanceToNextKm</strong> is optional. If omitted, distances use the Haversine formula × 1.3 for coastal routing.
               The first port&apos;s <strong>portStayMinutes</strong> is always treated as 0 (voyage origin).
             </span>
           </p>
