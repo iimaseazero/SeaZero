@@ -151,7 +151,7 @@ export default function ExcelUploader() {
                 <CheckCircle size={20} className="text-green-500" />
                 <div>
                   <p className="text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--green)' }}>
-                    Route Loaded Successfully
+                    Route loaded
                   </p>
                   <p className="text-xs" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
                     {parseResult.ports.length} ports · {parseResult.legs.length} legs ·{' '}

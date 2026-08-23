@@ -83,7 +83,7 @@ function PaybackTooltip({
   const ahead = d.cumulativeDelta < 0;
   return (
     <TooltipShell
-      title={d.year === 0 ? 'Year 0 — investment' : `Year ${d.year}`}
+      title={d.year === 0 ? 'Year 0, investment' : `Year ${d.year}`}
       subtitle={ahead ? 'EV is ahead on cumulative discounted cost' : 'EV is still behind'}
     >
       <TooltipRow label="EV cumulative" value={`$${d.evCumulative.toFixed(1)}M`} swatch={SERIES.ev} />
@@ -351,7 +351,7 @@ export default function FinancialCard() {
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--amber)' }} />
         <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-          Financial — 10-Year TCO Comparison
+          10-year TCO
         </h3>
       </div>
 
@@ -392,7 +392,7 @@ export default function FinancialCard() {
         <div className="flex items-center gap-2 mb-3">
           <DollarSign size={14} style={{ color: 'var(--text-muted)' }} />
           <span className="text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-            Annual Cash Flows — EV vs ICE
+            Annual cash flows
           </span>
         </div>
 
@@ -429,7 +429,7 @@ export default function FinancialCard() {
           </ResponsiveContainer>
         </div>
         <p className="text-[10px] mt-1 text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-          Discounted to present value · Year 0 = upfront investment · Years 1–10 = annual operating costs · Dashed line = delta (EV − ICE)
+          Year 0 = capital. Years 1–10 = operating, discounted.
         </p>
       </div>
 
@@ -438,20 +438,18 @@ export default function FinancialCard() {
         <div className="flex items-center gap-2 mb-3">
           <Milestone size={14} style={{ color: 'var(--text-muted)' }} />
           <span className="text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-            Cumulative Position — When Does the EV Pay Back?
+            Payback
           </span>
         </div>
 
         <p className="text-[11px] leading-relaxed mb-3" style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}>
-          Running total of discounted spend, EV minus ICE. It starts deep in the red because the
-          battery and the shore network are paid on day one, then climbs as cheaper energy accrues.
+          Running total of discounted spend, EV minus ICE.
           {crossoverYear !== null ? (
-            <> The two bids cross in <strong>year {crossoverYear.toFixed(1)}</strong> — inside the
-              10-year horizon.</>
+            <> The two bids cross in <strong>year {crossoverYear.toFixed(1)}</strong>.</>
           ) : paybackData[paybackData.length - 1]?.cumulativeDelta <= 0 ? (
             <> The EV is ahead from the start at these assumptions.</>
           ) : (
-            <> They never cross inside 10 years: the EV is still{' '}
+            <> They never cross inside 10 years. The EV is still{' '}
               <strong>${paybackData[paybackData.length - 1]?.cumulativeDelta.toFixed(0)}M</strong>{' '}
               behind at year 10.</>
           )}
@@ -560,7 +558,7 @@ export default function FinancialCard() {
         <div className="flex items-center gap-2 mb-3">
           <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
           <span className="text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-            NPV Breakdown — What Drives the Gap
+            NPV breakdown
           </span>
         </div>
 

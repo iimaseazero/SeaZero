@@ -125,7 +125,7 @@ export function generateTeamReportHtml(sub: Submission): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Team Performance Report — ${esc(teamName)}</title>
+  <title>Team Report: ${esc(teamName)}</title>
   <style>
     :root {
       --bg: #09090b;

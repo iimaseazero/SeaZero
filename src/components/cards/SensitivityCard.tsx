@@ -129,25 +129,24 @@ export default function SensitivityCard() {
           className="text-xs sm:text-sm font-semibold uppercase tracking-wider"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}
         >
-          Sensitivity — What Would Change The Answer
+          Sensitivity
         </h3>
       </div>
 
       {/* ═══ Tornado ═══ */}
       <SectionLabel icon={<Activity size={14} />}>
-        NPV gap swing by assumption
+        NPV gap swing
       </SectionLabel>
 
       <p
         className="text-[11px] leading-relaxed mb-3"
         style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
       >
-        Each bar moves one assumption between the bounds the case itself gives, holding everything
-        else fixed. Baseline gap is <strong>{formatMoneySigned(tornado.baselineNpvGap)}</strong>;
-        bars to the left make the EV look better, to the right worse.
+        One assumption moved at a time, between the bounds the case gives. Baseline gap{' '}
+        <strong>{formatMoneySigned(tornado.baselineNpvGap)}</strong>.
         {topFactor && (
-          <> <strong>{topFactor.label}</strong> alone swings it by {formatMoney(topFactor.swing)} — more
-          than any other single input.</>
+          <> <strong>{topFactor.label}</strong> swings it {formatMoney(topFactor.swing)}, more than
+          any other input.</>
         )}
       </p>
 
@@ -216,19 +215,16 @@ export default function SensitivityCard() {
       {/* ═══ Speed sweep ═══ */}
       <div className="pt-5 mt-5" style={{ borderTop: '1px solid var(--card-border)' }}>
         <SectionLabel icon={<Gauge size={14} />}>
-          Speed trade-off — indexed to the {REF_SPEED_KNOTS} kn benchmark
+          Speed trade-off
         </SectionLabel>
 
         <p
           className="text-[11px] leading-relaxed mb-3"
           style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
         >
-          Exhibit 9 read against your configuration, run as a battery vessel. All three measures are
-          indexed to 100 at {REF_SPEED_KNOTS} kn so they share one scale — putting MWh, tonnes and
-          dollars on separate axes would invent a relationship that is not in the data. Energy,
-          emissions and cost move together; the question is how much schedule you are buying.
+          Indexed to 100 at {REF_SPEED_KNOTS} kn, simulated as a battery vessel.
           {speedFeasibleFrom !== undefined && speedFeasibleTo !== undefined ? (
-            <> The voyage completes between <strong>{speedFeasibleFrom} and {speedFeasibleTo} kn</strong>.</>
+            <> Completes between <strong>{speedFeasibleFrom} and {speedFeasibleTo} kn</strong>.</>
           ) : (
             <> No speed in this range completes the voyage on the current network.</>
           )}

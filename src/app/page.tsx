@@ -71,7 +71,7 @@ export default function Home() {
             mobileTab === 'config' ? 'flex h-[600px] lg:h-full' : 'hidden lg:flex'
           }`}
         >
-          <HoverTag tag="Config Panel" position="top-right" className="h-full">
+          <HoverTag tag="Configuration" position="top-right" className="h-full">
             <ConfigPanel />
           </HoverTag>
         </motion.aside>
@@ -86,22 +86,22 @@ export default function Home() {
           }`}
           style={{ minWidth: 0 }}
         >
-          <HoverTag tag="Feasibility Verdict">
+          <HoverTag tag="Verdict">
             <VerdictBanner />
           </HoverTag>
-          <HoverTag tag="SoC Operational View">
+          <HoverTag tag="State of Charge">
             <OperationalCard />
           </HoverTag>
-          <HoverTag tag="10-Year TCO Analysis">
+          <HoverTag tag="10-Year TCO">
             <FinancialCard />
           </HoverTag>
-          <HoverTag tag="CO₂ Emissions Impact">
+          <HoverTag tag="Emissions">
             <EnvironmentalCard />
           </HoverTag>
           <HoverTag tag="Decision Surface">
             <DecisionCard />
           </HoverTag>
-          <HoverTag tag="Assumption Sensitivity">
+          <HoverTag tag="Sensitivity">
             <SensitivityCard />
           </HoverTag>
         </motion.section>
@@ -115,7 +115,7 @@ export default function Home() {
             mobileTab === 'map' ? 'flex' : 'hidden lg:flex'
           }`}
         >
-          <HoverTag tag="Route Map & Playback" position="top-right" className="w-full flex flex-col">
+          <HoverTag tag="Route Map" position="top-right" className="w-full flex flex-col">
             <RouteMap />
           </HoverTag>
         </motion.aside>

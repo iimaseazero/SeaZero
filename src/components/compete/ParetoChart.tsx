@@ -91,7 +91,7 @@ export default function ParetoChart({ submissions }: { submissions: Submission[]
         className="text-[11px] py-6 text-center"
         style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
       >
-        No scored bids yet. The frontier appears once teams start submitting.
+        No scored bids yet.
       </p>
     );
   }
@@ -111,10 +111,9 @@ export default function ParetoChart({ submissions }: { submissions: Submission[]
         className="text-[11px] leading-relaxed mb-3"
         style={{ color: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
       >
-        Cheaper is left, more robust is up — so the best bids sit toward the top-left. Rings mark the{' '}
-        <strong>{frontier.length}</strong> bid{frontier.length === 1 ? '' : 's'} on the Pareto
-        frontier: no one has beaten them on both cost and reliability at once. Everyone else is
-        strictly dominated by someone.
+        Cheaper is left, more robust is up. Rings mark the{' '}
+        <strong>{frontier.length}</strong> bid{frontier.length === 1 ? '' : 's'} no one has beaten on
+        both cost and reliability.
       </p>
 
       <div className="w-full min-w-0 overflow-hidden" style={{ height: 280 }}>
@@ -131,7 +130,7 @@ export default function ParetoChart({ submissions }: { submissions: Submission[]
               tickLine={false}
               tickFormatter={(v: number) => `$${v.toFixed(0)}M`}
               label={{
-                value: 'Worst-case 10-year TCO — cheaper is better →',
+                value: 'Worst-case 10-year TCO (cheaper is better →)',
                 position: 'insideBottom',
                 offset: -12,
                 fill: 'var(--text-muted)',
@@ -195,8 +194,7 @@ export default function ParetoChart({ submissions }: { submissions: Submission[]
         className="text-[10px] mt-1"
         style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
       >
-        Top score: <strong>{bestScore.teamName}</strong> at {bestScore.totalScore.toFixed(0)}/100 —
-        not necessarily the cheapest bid, which is the point.
+        Top score: <strong>{bestScore.teamName}</strong>, {bestScore.totalScore.toFixed(0)}/100.
       </p>
 
       <TableView

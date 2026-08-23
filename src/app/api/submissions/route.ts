@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { d1Query, d1Execute } from '@/lib/d1';
-import { requireUser, requireAdmin } from '@/lib/apiAuth';
+import { requireUser } from '@/lib/apiAuth';
 
 // ─── GET /api/submissions — leaderboard (sorted by score DESCENDING) ───
 //

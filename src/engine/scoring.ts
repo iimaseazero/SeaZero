@@ -141,7 +141,7 @@ export const STRESS_SCENARIOS: StressScenario[] = [
     short: 'Cheap fuel',
     kind: 'economic',
     rationale:
-      'MGO at $400/t. Exhibit 6 shows Bergen prices near this level through 2020 — the scenario that removes the battery vessel’s operating-cost argument.',
+      'MGO at $400/t. Exhibit 6 shows Bergen prices near this level through 2020. This is the scenario that removes the battery vessel’s operating-cost argument.',
     assumptions: { mgoCostPerTonne: 400 },
   },
   {
@@ -150,7 +150,7 @@ export const STRESS_SCENARIOS: StressScenario[] = [
     short: 'Dear fuel',
     kind: 'economic',
     rationale:
-      'MGO at $1,600/t. Exhibit 6 peaks near EUR 1,450 in 2022 — the scenario that punishes a conventional bid.',
+      'MGO at $1,600/t. Exhibit 6 peaks near EUR 1,450 in 2022. This is the scenario that punishes a conventional bid.',
     assumptions: { mgoCostPerTonne: 1600 },
   },
   {
@@ -159,7 +159,7 @@ export const STRESS_SCENARIOS: StressScenario[] = [
     short: 'No carbon',
     kind: 'economic',
     rationale:
-      'Carbon at $0/t. The case’s $190 is a tender penalty, not a guaranteed tax — a bid that only works with it is fragile.',
+      'Carbon at $0/t. The case’s $190 is a tender penalty, not a guaranteed tax. A bid that only works with it is fragile.',
     configPatch: { carbonPricePerTon: 0 },
   },
   {

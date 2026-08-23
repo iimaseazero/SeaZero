@@ -107,7 +107,7 @@ export default function LoginPage() {
               color: 'var(--text-muted)',
             }}
           >
-            Coastal Route Electrification Simulator
+            Route electrification
           </p>
         </motion.div>
 
@@ -180,7 +180,7 @@ export default function LoginPage() {
                   border: '1px solid rgba(16, 185, 129, 0.2)',
                 }}
               >
-                Registration successful! Check your email to confirm your account, then sign in.
+                Account created. Check your email to confirm it, then sign in.
               </motion.div>
             )}
           </AnimatePresence>
@@ -404,7 +404,7 @@ export default function LoginPage() {
           animate={{ opacity: 0.5 }}
           transition={{ delay: 0.5 }}
         >
-          Digital twin of coastal ferry routes
+          Kystruten route electrification
         </motion.p>
       </motion.div>
     </main>

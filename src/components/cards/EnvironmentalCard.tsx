@@ -166,7 +166,7 @@ export default function EnvironmentalCard() {
       <div className="flex items-center gap-2.5 mb-5">
         <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: 'var(--green)' }} />
         <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
-          Environmental — CO₂ Emissions & Abatement Cost
+          Emissions and abatement cost
         </h3>
       </div>
 
@@ -237,7 +237,7 @@ export default function EnvironmentalCard() {
         <div className="flex items-center gap-2 mb-4">
           <Calculator size={14} style={{ color: 'var(--text-muted)' }} />
           <span className="text-xs font-semibold uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-            Cost to Abate Carbon
+            Abatement cost
           </span>
         </div>
 
@@ -272,7 +272,7 @@ export default function EnvironmentalCard() {
                 {!hasAbatement
                   ? 'The two options emit almost the same amount at these settings'
                   : evSaves
-                    ? 'Negative abatement cost — EV is both cheaper and cleaner'
+                    ? 'Negative abatement cost. Cheaper and cleaner.'
                     : 'Marginal abatement cost over 10-year horizon'}
               </p>
             </div>
@@ -315,7 +315,7 @@ export default function EnvironmentalCard() {
         {/* Incremental cost breakdown — horizontal bar chart */}
         <div className="mb-4">
           <p className="text-[10px] uppercase tracking-wider mb-2 font-medium" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-            What makes up the incremental cost
+            Incremental cost breakdown
           </p>
           <div className="w-full min-w-0 overflow-hidden" style={{ height: 130 }}>
             <ResponsiveContainer width="100%" height={130} minWidth={0}>
@@ -364,7 +364,7 @@ export default function EnvironmentalCard() {
           border: '1px solid var(--card-border)',
         }}>
           <p className="text-[10px] uppercase tracking-wider mb-3 font-medium" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-            How does this compare?
+            For comparison
           </p>
           <div className="space-y-2">
             {BENCHMARKS.map((b) => {
@@ -397,10 +397,10 @@ export default function EnvironmentalCard() {
             {!hasAbatement
               ? 'Abatement cost is undefined when the two options emit the same amount.'
               : evSaves
-                ? 'No abatement cost — the EV option is cheaper while eliminating emissions.'
+                ? 'No abatement cost. The EV is cheaper and eliminates emissions.'
                 : absCostPerTon < 200
-                  ? 'Abatement cost is comparable to existing carbon pricing mechanisms.'
-                  : 'Abatement cost exceeds most current carbon prices, but may align with future climate policy.'
+                  ? 'Abatement cost is in line with current carbon prices.'
+                  : 'Abatement cost is above most current carbon prices.'
             }
           </p>
         </div>

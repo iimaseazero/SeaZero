@@ -27,21 +27,21 @@ const COMPONENTS: {
     label: 'Reliability',
     max: 35,
     color: 'var(--chart-ev)',
-    hint: 'Does the bid still sail when the weather, the load, a charger or the pack turns against it? Zero if the base case cannot complete the voyage at all.',
+    hint: 'Does the bid still sail when the weather, the load, a charger or the pack turns against it? Zero if the base case cannot complete the voyage.',
   },
   {
     key: 'cost',
     label: 'Cost',
     max: 35,
     color: 'var(--chart-accent)',
-    hint: 'Ten-year TCO of the vessel you chose, scored at its WORST economic scenario — an optimistic fuel forecast buys nothing here.',
+    hint: 'Ten-year TCO of the vessel you chose, scored at its worst economic scenario. An optimistic fuel forecast buys nothing.',
   },
   {
     key: 'climate',
     label: 'Climate',
     max: 20,
     color: 'var(--chart-good)',
-    hint: 'Absolute CO₂ your vessel emits, against a conventional ship with no efficiency package. Burning more energy always costs you points.',
+    hint: 'Absolute CO₂ your vessel emits, against a conventional ship with no efficiency package. Burning more energy costs points.',
   },
   {
     key: 'service',
@@ -165,7 +165,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
           className="text-sm font-semibold uppercase tracking-wider"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}
         >
-          Bid Score &amp; Submit
+          Bid Score
         </h3>
       </div>
 
@@ -216,7 +216,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
             className="text-[10px] uppercase tracking-wider font-semibold"
             style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
           >
-            Base case + {preview.operationalTotal} operational stresses
+            Stress panel
           </span>
           <span className="text-[10px]" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
             {preview.operationalPassed}/{preview.operationalTotal} stresses survived
@@ -232,7 +232,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
             className="text-[10px] uppercase tracking-wider font-semibold"
             style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
           >
-            Price scenarios — cost is scored at the worst of these
+            Price scenarios
           </span>
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -243,11 +243,10 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
           className="text-[10px] leading-relaxed mt-3"
           style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
         >
-          Worst-case TCO {formatMoney(preview.worstCaseTCO)} against a{' '}
-          {formatMoney(preview.benchmarkTCO)} efficiency-upgraded conventional benchmark ·{' '}
-          {preview.co2ReductionPercent.toFixed(0)}% below a do-nothing vessel ·{' '}
-          {preview.scheduleDeviationHours >= 0 ? '+' : ''}
-          {preview.scheduleDeviationHours.toFixed(1)} h vs the Exhibit 2 timetable
+          Worst-case TCO {formatMoney(preview.worstCaseTCO)} vs {formatMoney(preview.benchmarkTCO)}{' '}
+          conventional benchmark · {preview.co2ReductionPercent.toFixed(0)}% below a do-nothing
+          vessel · {preview.scheduleDeviationHours >= 0 ? '+' : ''}
+          {preview.scheduleDeviationHours.toFixed(1)} h vs timetable
         </p>
       </div>
 
@@ -297,7 +296,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
             >
               <CheckCircle size={20} style={{ color: 'var(--chart-good)' }} />
               <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-display)', color: 'var(--chart-good)' }}>
-                Bid submitted
+                Submitted
               </span>
             </motion.div>
           ) : showConfirm ? (
@@ -318,7 +317,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
                   border: '1px solid rgba(5,150,105,0.25)',
                 }}
               >
-                Confirm bid for {selectedTeam?.name}
+                Confirm
               </button>
               <button
                 onClick={() => setShowConfirm(false)}
@@ -350,7 +349,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
                 cursor: canSubmit ? 'pointer' : 'not-allowed',
               }}
             >
-              {canSubmit ? 'Submit bid (replaces your previous one)' : 'Select a team first'}
+              {canSubmit ? 'Submit Bid' : 'Select a team first'}
             </motion.button>
           )}
         </AnimatePresence>
@@ -381,7 +380,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
           }}
         >
           <Download size={14} style={{ color: 'var(--chart-ev)' }} />
-          Download current report
+          Download Report
         </button>
       </div>
     </motion.div>

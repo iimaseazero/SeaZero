@@ -44,7 +44,7 @@ export default function Leaderboard() {
           No bids yet
         </p>
         <p className="text-sm" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
-          The board updates live as teams submit — no reload needed.
+          Updates live as teams submit.
         </p>
       </div>
     );
@@ -202,7 +202,7 @@ export default function Leaderboard() {
           className="text-xs font-semibold uppercase tracking-wider mb-3"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}
         >
-          The frontier — cost against robustness
+          Cost vs Robustness
         </p>
         <ParetoChart submissions={submissions} />
       </div>
@@ -213,7 +213,7 @@ export default function Leaderboard() {
           className="text-[10px] uppercase tracking-wider font-semibold mb-2"
           style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
         >
-          Bid score — 100 points, higher wins
+          Bid Score
         </p>
         <div className="flex flex-wrap gap-x-5 gap-y-2">
           {[
@@ -237,8 +237,8 @@ export default function Leaderboard() {
           className="text-[10px] mt-2.5 leading-relaxed"
           style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
         >
-          Cost is scored at your worst price scenario, not your best. Climate counts what your ship
-          actually emits, not what a diesel would have — so sailing faster can never earn points.
+          Cost uses your worst price scenario. Climate counts what your ship emits, not what a
+          diesel would have.
         </p>
       </div>
     </div>
