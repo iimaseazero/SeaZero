@@ -98,7 +98,7 @@ export default function NavBar() {
         </Link>
 
         {/* Center: Route metadata & Issues pill */}
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-3">
           <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-lg" style={{ background: 'var(--glass-strong)', border: '1px solid var(--border)' }}>
             <span className="text-[11px] font-medium tracking-wide" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
               {routeName}{isRoundtrip ? ' \u21c4' : ''}
@@ -116,7 +116,7 @@ export default function NavBar() {
         </div>
 
         {/* Right: Nav Links + Logout */}
-        <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
+        <div className="hidden lg:flex items-center gap-1.5 flex-shrink-0">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
@@ -217,7 +217,7 @@ export default function NavBar() {
         {/* Mobile menu toggle button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 rounded-lg text-secondary hover:text-primary transition-colors"
+          className="lg:hidden p-2 rounded-lg text-secondary hover:text-primary transition-colors"
           style={{
             background: mobileMenuOpen ? 'rgba(56, 217, 200, 0.1)' : 'var(--glass-strong)',
             border: '1px solid var(--border)',
@@ -232,7 +232,7 @@ export default function NavBar() {
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
         <div
-          className="md:hidden pt-3 pb-2 mt-2 space-y-2 border-t border-[var(--border)] animate-in fade-in slide-in-from-top-2"
+          className="lg:hidden pt-3 pb-2 mt-2 space-y-2 border-t border-[var(--border)] animate-in fade-in slide-in-from-top-2"
         >
           <div className="flex items-center justify-between px-2 pb-1">
             <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg text-[10px]" style={{ background: 'var(--glass-strong)', border: '1px solid var(--border)' }}>

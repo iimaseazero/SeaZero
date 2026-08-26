@@ -244,8 +244,8 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
           style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
         >
           Worst-case TCO {formatMoney(preview.worstCaseTCO)} vs {formatMoney(preview.benchmarkTCO)}{' '}
-          conventional benchmark · {preview.co2ReductionPercent.toFixed(0)}% below a do-nothing
-          vessel · {preview.scheduleDeviationHours >= 0 ? '+' : ''}
+          conventional benchmark · {preview.co2ReductionPercent.toFixed(0)}% less CO₂ than a
+          do-nothing vessel · {preview.scheduleDeviationHours >= 0 ? '+' : ''}
           {preview.scheduleDeviationHours.toFixed(1)} h vs timetable
         </p>
       </div>
@@ -261,7 +261,7 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
         >
           Configuration Summary
         </span>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 2xl:grid-cols-3 gap-x-4 gap-y-2.5">
           {[
             { label: 'Vessel', value: config.vesselType === 'ev' ? 'Battery' : 'Conventional' },
             { label: 'Battery', value: `${config.batteryMWh} MWh` },
@@ -270,11 +270,11 @@ export default function SubmitPanel({ selectedTeam, onSubmitted }: SubmitPanelPr
             { label: 'Connector', value: `${config.chargePowerMW} MW` },
             { label: 'Efficiency', value: config.efficiencyPackage ? 'Yes' : 'No' },
           ].map((item) => (
-            <div key={item.label} className="flex justify-between gap-2">
-              <span className="text-[11px]" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
+            <div key={item.label} className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[10px] uppercase tracking-wider" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-muted)' }}>
                 {item.label}
               </span>
-              <span className="text-[11px] font-bold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
+              <span className="text-[11px] font-bold truncate" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>
                 {item.value}
               </span>
             </div>

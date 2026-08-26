@@ -155,7 +155,7 @@ export default function SensitivityCard() {
           <BarChart
             data={tornadoData}
             layout="vertical"
-            margin={{ top: 4, right: 16, left: 8, bottom: 18 }}
+            margin={{ top: 4, right: 16, left: 0, bottom: 4 }}
             barCategoryGap="22%"
           >
             <CartesianGrid stroke={GRID_STROKE} horizontal={false} />
@@ -165,14 +165,6 @@ export default function SensitivityCard() {
               axisLine={axisLine}
               tickLine={false}
               tickFormatter={(v: number) => `${v > 0 ? '+' : ''}${v.toFixed(0)}M`}
-              label={{
-                value: 'Change in NPV gap vs baseline ($M)',
-                position: 'insideBottom',
-                offset: -10,
-                fill: 'var(--text-muted)',
-                fontSize: 10,
-                fontFamily: 'var(--font-display)',
-              }}
             />
             <YAxis
               type="category"
@@ -180,7 +172,7 @@ export default function SensitivityCard() {
               tick={{ ...axisTick, fontFamily: 'var(--font-display)', fill: 'var(--text-secondary)' }}
               axisLine={axisLine}
               tickLine={false}
-              width={118}
+              width={176}
             />
             <Tooltip content={<TornadoTooltip />} cursor={{ fill: 'var(--glass)' }} />
             <ReferenceLine x={0} stroke="var(--chart-neutral)" strokeWidth={1.5} />
@@ -192,6 +184,13 @@ export default function SensitivityCard() {
         </ResponsiveContainer>
       </div>
 
+      <p
+        className="text-[10px] text-center mt-1"
+        style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}
+      >
+        Change in NPV gap vs baseline ($M)
+      </p>
+
       <ChartLegend
         items={[
           { label: 'Moves the gap in the EV’s favour', color: SERIES.ev },
@@ -201,7 +200,7 @@ export default function SensitivityCard() {
 
       <TableView
         caption="NPV gap sensitivity by assumption"
-        columns={['Assumption', 'Low probe', 'NPV gap', 'High probe', 'NPV gap', 'Swing']}
+        columns={['Assumption', 'Low probe', 'Gap at low', 'High probe', 'Gap at high', 'Swing']}
         rows={tornado.factors.map((f) => [
           f.label,
           f.lowLabel,
@@ -270,7 +269,7 @@ export default function SensitivityCard() {
                 strokeWidth={1}
                 label={{
                   value: `${REF_SPEED_KNOTS} kn`,
-                  position: 'top',
+                  position: 'insideTopRight',
                   fill: 'var(--text-muted)',
                   fontSize: 10,
                   fontFamily: 'var(--font-mono)',

@@ -46,7 +46,7 @@ export default function PortTable() {
             <span className="text-[10px] sm:text-xs uppercase tracking-wider font-medium text-center" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
               {stat.label}
             </span>
-            <span className="text-base sm:text-lg font-bold" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
+            <span className="text-base sm:text-lg font-bold whitespace-nowrap mt-auto pt-0.5" style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-primary)' }}>
               {stat.value}
             </span>
           </div>
@@ -74,33 +74,34 @@ export default function PortTable() {
         className="rounded-xl overflow-x-auto"
         style={{ border: '1px solid var(--card-border)', background: 'var(--glass)' }}
       >
-        <div className="min-w-[500px]">
-          {/* Header */}
-          <div
-            className="grid px-4 py-2.5"
-            style={{
-              gridTemplateColumns: '40px 1fr 100px 100px 80px 80px',
-              background: 'var(--glass-strong)',
-              borderBottom: '1px solid var(--border)',
-            }}
-          >
-            {['#', 'Port Name', 'Latitude', 'Longitude', 'Grid', 'Dwell'].map((h) => (
-              <span key={h} className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-                {h}
-              </span>
-            ))}
-          </div>
-
-          {/* Rows */}
+        <div className="min-w-[420px]">
+          {/* Header and rows share one scroll container: with the header outside
+              it, the rows lose the scrollbar's width and the columns drift. */}
           <div className="max-h-[400px] overflow-y-auto">
+            <div
+              className="grid px-3 py-2.5 sticky top-0 z-10"
+              style={{
+                gridTemplateColumns: '22px minmax(100px, 1fr) 56px 56px 60px 40px',
+                gap: '8px',
+                background: 'var(--glass-strong)',
+                borderBottom: '1px solid var(--border)',
+              }}
+            >
+              {['#', 'Port Name', 'Lat', 'Lng', 'Grid', 'Dwell'].map((h) => (
+                <span key={h} className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+                  {h}
+                </span>
+              ))}
+            </div>
             {activePorts.map((port, i) => {
               const tierStyle = GRID_COLORS[port.gridTier];
               return (
                 <div
                   key={port.id}
-                  className="grid px-4 py-2 items-center transition-colors hover:bg-[rgba(255,255,255,0.02)]"
+                  className="grid px-3 py-2 items-center transition-colors hover:bg-[rgba(255,255,255,0.02)]"
                   style={{
-                    gridTemplateColumns: '40px 1fr 100px 100px 80px 80px',
+                    gridTemplateColumns: '22px minmax(100px, 1fr) 56px 56px 60px 40px',
+                    gap: '8px',
                     borderBottom: '1px solid var(--border-subtle)',
                   }}
                 >

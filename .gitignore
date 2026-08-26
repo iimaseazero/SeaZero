@@ -43,6 +43,8 @@ Project Case.pdf
 # Generated decks reproduce Exhibit 2 and the case's cost figures, so they carry
 # the same restriction as the PDF. Regenerate rather than commit.
 *.pptx
+*.docx
+!Project -Two Page Abstract.doc
 
 # wrangler — local miniflare state, including a SQLite mirror of the D1
 # database. Empty on a fresh checkout, but it holds real user emails and

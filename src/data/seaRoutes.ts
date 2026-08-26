@@ -5,7 +5,7 @@
 // simulation across different geographies and operating contexts without
 // needing to upload a custom Excel file.
 
-import { Port, GridTier } from '@/data/ports';
+import { Port } from '@/data/ports';
 import { Leg } from '@/data/legs';
 
 export type RouteCategory = 'long-haul' | 'dense-short';

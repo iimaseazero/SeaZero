@@ -53,7 +53,7 @@ function SocTooltip({
   const data = payload[0].payload;
   return (
     <div className="rounded-xl px-4 py-3 text-xs" style={{
-      background: 'rgba(14, 26, 43, 0.92)',
+      background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       fontFamily: 'var(--font-mono)',
       backdropFilter: 'blur(12px)',
@@ -77,7 +77,7 @@ function FuelTooltip({
   if (!active || !d) return null;
   return (
     <div className="rounded-xl px-4 py-3 text-xs" style={{
-      background: 'rgba(14, 26, 43, 0.92)',
+      background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       fontFamily: 'var(--font-mono)',
       backdropFilter: 'blur(12px)',
@@ -295,7 +295,7 @@ export default function OperationalCard() {
       {isIce ? (
         <div className="w-full mb-5 min-w-0 overflow-hidden" style={{ height: 224 }}>
           <ResponsiveContainer width="100%" height={224} minWidth={0}>
-            <ComposedChart data={fuelChartData.slice(0, visibleCount)} margin={{ top: 8, right: 16, left: -5, bottom: 5 }}>
+            <ComposedChart data={fuelChartData.slice(0, visibleCount)} margin={{ top: 14, right: 16, left: 0, bottom: 5 }}>
               <defs>
                 <linearGradient id="fuelAreaGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="var(--amber)" stopOpacity={0.18} />
@@ -315,6 +315,7 @@ export default function OperationalCard() {
                 tick={{ fontSize: 10, fill: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}
                 axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
                 tickLine={false}
+                width={52}
                 unit=" t"
               />
               <Tooltip content={<FuelTooltip />} />
@@ -335,7 +336,7 @@ export default function OperationalCard() {
         /* SoC chart — arrival and departure state of charge at every call */
         <div className="w-full mb-5 min-w-0 overflow-hidden" style={{ height: 224 }}>
         <ResponsiveContainer width="100%" height={224} minWidth={0}>
-          <ComposedChart data={chartData} margin={{ top: 8, right: 16, left: -5, bottom: 5 }}>
+          <ComposedChart data={chartData} margin={{ top: 14, right: 16, left: 0, bottom: 5 }}>
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--green)" stopOpacity={1}/>
@@ -362,6 +363,7 @@ export default function OperationalCard() {
               axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
               tickLine={false}
               domain={[0, (config.batteryMWh as number) + 5]}
+              width={84}
               unit=" MWh"
             />
             <Tooltip content={<SocTooltip reserveFloor={reserveFloor} batteryMWh={config.batteryMWh} />} />
@@ -371,7 +373,7 @@ export default function OperationalCard() {
               strokeDasharray="6 4"
               strokeWidth={1.5}
               strokeOpacity={0.7}
-              label={{ value: `Reserve ${config.reservePercent}%`, position: 'right', fill: 'var(--red)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+              label={{ value: `Reserve ${config.reservePercent}%`, position: 'insideBottomRight', fill: 'var(--red)', fontSize: 11, fontFamily: 'var(--font-mono)' }}
             />
             <Area
               type="monotone"
@@ -490,7 +492,7 @@ export default function OperationalCard() {
 
           <div className="w-full min-w-0 overflow-hidden" style={{ height: 210 }}>
             <ResponsiveContainer width="100%" height={210} minWidth={0}>
-              <ComposedChart data={callData} margin={{ top: 6, right: 16, left: -6, bottom: 5 }} barGap={0}>
+              <ComposedChart data={callData} margin={{ top: 14, right: 16, left: 0, bottom: 5 }} barGap={0}>
                 <CartesianGrid stroke={GRID_STROKE} vertical={false} />
                 <XAxis
                   dataKey="portShort"
@@ -504,7 +506,7 @@ export default function OperationalCard() {
                   tick={axisTick}
                   axisLine={axisLine}
                   tickLine={false}
-                  width={48}
+                  width={84}
                   tickFormatter={(v: number) => `${Math.abs(v).toFixed(0)}`}
                   unit=" MWh"
                 />

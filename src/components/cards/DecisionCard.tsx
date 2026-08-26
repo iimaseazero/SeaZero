@@ -154,7 +154,7 @@ export default function DecisionCard() {
       <div className="overflow-x-auto -mx-1 px-1">
         <div className="inline-block min-w-full">
           {/* Grid: one row per battery size, one column per connector rating */}
-          <div className="flex">
+          <div className="flex justify-center">
             <div
               className="flex flex-col justify-center pr-2 text-[9px] uppercase tracking-wider"
               style={{
