@@ -161,7 +161,7 @@ export default function PlaybackBar() {
           </span>
         </div>
 
-        <span className="text-xs flex-1 text-left sm:text-right truncate font-medium flex items-center justify-start sm:justify-end gap-2 min-w-0" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+        <span className="text-xs font-medium flex items-center justify-start sm:justify-end gap-2 min-w-0 flex-1 basis-40" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
           {directionLabel && (
             <span
               className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded flex-shrink-0"

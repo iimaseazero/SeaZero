@@ -118,7 +118,7 @@ function CashFlowTooltip({
 
   return (
     <div className="rounded-xl px-4 py-3 text-xs max-w-[280px]" style={{
-      background: 'rgba(14, 26, 43, 0.95)',
+      background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       fontFamily: 'var(--font-mono)',
       backdropFilter: 'blur(12px)',
@@ -173,7 +173,7 @@ function WaterfallTooltip({
   const isNet = d.category === 'Net NPV Gap';
   return (
     <div className="rounded-xl px-4 py-3 text-xs" style={{
-      background: 'rgba(14, 26, 43, 0.95)',
+      background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       fontFamily: 'var(--font-mono)',
       backdropFilter: 'blur(12px)',
@@ -584,7 +584,7 @@ export default function FinancialCard() {
                 tick={{ fontSize: 9, fill: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
                 axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
                 tickLine={false}
-                width={85}
+                width={150}
               />
               <Tooltip content={<WaterfallTooltip />} />
               <ReferenceLine x={0} stroke="rgba(148,163,184,0.15)" />

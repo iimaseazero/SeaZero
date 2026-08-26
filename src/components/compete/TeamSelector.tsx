@@ -82,7 +82,7 @@ export default function TeamSelector({ selectedTeam, onSelect }: TeamSelectorPro
         <div
           className="absolute top-full left-0 right-0 mt-1 rounded-xl overflow-hidden z-50"
           style={{
-            background: 'rgba(14, 26, 43, 0.95)',
+            background: 'var(--card-bg)',
             border: '1px solid var(--card-border)',
             backdropFilter: 'blur(16px)',
             boxShadow: '0 12px 40px rgba(0,0,0,0.4)',

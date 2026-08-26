@@ -32,12 +32,12 @@ export function useTheme() {
 export default function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>('dark');
 
-  // On mount, read persisted preference (default: dark)
+  // The inline script in the root layout has already set data-theme before
+  // paint. This only syncs React's copy so the toggle shows the right icon;
+  // it must not re-apply the attribute or it would fight the script.
   useEffect(() => {
-    const stored = localStorage.getItem('sz-theme') as Theme | null;
-    const initial = stored === 'light' ? 'light' : 'dark';
-    setTheme(initial);
-    document.documentElement.setAttribute('data-theme', initial);
+    const applied = document.documentElement.getAttribute('data-theme');
+    if (applied === 'light') setTheme('light');
   }, []);
 
   function toggleTheme() {

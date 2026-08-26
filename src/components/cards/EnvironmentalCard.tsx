@@ -8,6 +8,7 @@ import {
   BarChart, Bar, Cell
 } from 'recharts';
 import { Zap, Flame, Globe, Calculator, Scale } from 'lucide-react';
+import { SERIES, ChartLegend } from '@/components/charts/chartTheme';
 
 function StatTile({ label, value, unit, color, icon }: { label: string; value: string | number; unit?: string; color?: string; icon?: React.ReactNode }) {
   return (
@@ -68,7 +69,7 @@ function CumulativeTooltip({
 
   return (
     <div className="rounded-xl px-4 py-3 text-xs" style={{
-      background: 'rgba(14, 26, 43, 0.92)',
+      background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       fontFamily: 'var(--font-mono)',
       backdropFilter: 'blur(12px)',
@@ -95,7 +96,7 @@ function IncrementalTooltip({
   if (!active || !d) return null;
   return (
     <div className="rounded-xl px-3 py-2 text-xs" style={{
-      background: 'rgba(14, 26, 43, 0.95)',
+      background: 'var(--card-bg)',
       border: '1px solid var(--card-border)',
       fontFamily: 'var(--font-mono)',
       backdropFilter: 'blur(12px)',
@@ -171,17 +172,17 @@ export default function EnvironmentalCard() {
       </div>
 
       {/* ═══ Diverging CO2 curves ═══ */}
-      <div className="w-full mb-5 min-w-0 overflow-hidden" style={{ height: 208 }}>
+      <div className="w-full min-w-0 overflow-hidden" style={{ height: 208 }}>
         <ResponsiveContainer width="100%" height={208} minWidth={0}>
           <ComposedChart data={chartData} margin={{ top: 8, right: 16, left: -5, bottom: 5 }}>
             <defs>
               <linearGradient id="iceAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--red)" stopOpacity={0.12}/>
-                <stop offset="100%" stopColor="var(--red)" stopOpacity={0.01}/>
+                <stop offset="0%" stopColor={SERIES.ice} stopOpacity={0.12}/>
+                <stop offset="100%" stopColor={SERIES.ice} stopOpacity={0.01}/>
               </linearGradient>
               <linearGradient id="evAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--cyan)" stopOpacity={0.12}/>
-                <stop offset="100%" stopColor="var(--cyan)" stopOpacity={0.01}/>
+                <stop offset="0%" stopColor={SERIES.ev} stopOpacity={0.12}/>
+                <stop offset="100%" stopColor={SERIES.ev} stopOpacity={0.01}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(148,163,184,0.06)" />
@@ -201,14 +202,21 @@ export default function EnvironmentalCard() {
             <Tooltip content={<CumulativeTooltip />} />
             <Area type="monotone" dataKey="ICE" fill="url(#iceAreaGrad)" stroke="none" isAnimationActive={isAnimating} animationDuration={400} />
             <Area type="monotone" dataKey="EV" fill="url(#evAreaGrad)" stroke="none" isAnimationActive={isAnimating} animationDuration={400} />
-            <Line type="monotone" dataKey="ICE" stroke="var(--red)" strokeWidth={2.5} dot={{ r: 3, fill: 'var(--red)', strokeWidth: 0 }} isAnimationActive={isAnimating} animationDuration={400} />
-            <Line type="monotone" dataKey="EV" stroke="var(--cyan)" strokeWidth={2.5} dot={{ r: 3, fill: 'var(--cyan)', strokeWidth: 0 }} isAnimationActive={isAnimating} animationDuration={400} />
+            <Line type="monotone" dataKey="ICE" stroke={SERIES.ice} strokeWidth={2.5} dot={{ r: 3, fill: SERIES.ice, strokeWidth: 0 }} isAnimationActive={isAnimating} animationDuration={400} />
+            <Line type="monotone" dataKey="EV" stroke={SERIES.ev} strokeWidth={2.5} dot={{ r: 3, fill: SERIES.ev, strokeWidth: 0 }} isAnimationActive={isAnimating} animationDuration={400} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
 
+      <ChartLegend
+        items={[
+          { label: 'Conventional, cumulative CO₂', color: SERIES.ice },
+          { label: 'Battery-electric, cumulative CO₂', color: SERIES.ev },
+        ]}
+      />
+
       {/* Stat tiles — scale during playback */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-5 mb-6">
         <StatTile
           icon={<Zap size={16} />}
           label={`CO₂ / ${voyageWord} (EV)`}
@@ -339,7 +347,7 @@ export default function EnvironmentalCard() {
                   tick={{ fontSize: 10, fill: 'var(--text-secondary)', fontFamily: 'var(--font-display)' }}
                   axisLine={{ stroke: 'rgba(148,163,184,0.08)' }}
                   tickLine={false}
-                  width={80}
+                  width={166}
                 />
                 <Tooltip content={<IncrementalTooltip />} />
                 <Bar dataKey="value" radius={[3, 3, 3, 3]} barSize={12}>

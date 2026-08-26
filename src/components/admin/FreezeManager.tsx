@@ -200,7 +200,7 @@ export default function FreezeManager() {
 
                     {/* Label */}
                     <span
-                      className="flex-1 text-[12px] font-medium truncate"
+                      className="flex-1 min-w-0 text-[12px] font-medium leading-snug"
                       style={{
                         fontFamily: 'var(--font-display)',
                         color: isFrozen ? 'var(--text-primary)' : 'var(--text-secondary)',

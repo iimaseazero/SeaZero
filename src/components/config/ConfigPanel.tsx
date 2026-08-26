@@ -97,7 +97,7 @@ export default function ConfigPanel() {
             Scenario Presets
             {hasFrozenControls && <LockBadge />}
           </label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2">
             {activePresets.map((preset) => (
               <button
                 key={preset.id}
@@ -127,7 +127,7 @@ export default function ConfigPanel() {
                     return <Icon size={14} />;
                   })() : '•'}
                 </span>
-                <span className="truncate">{preset.name}</span>
+                <span>{preset.name}</span>
               </button>
             ))}
           </div>
@@ -354,11 +354,11 @@ export default function ConfigPanel() {
                   return (
                     <div
                       key={port.id}
-                      className="flex items-center gap-2.5 px-3 py-2 transition-colors hover:bg-[rgba(255,255,255,0.02)]"
+                      className="flex items-center gap-2 px-2.5 py-2 transition-colors hover:bg-[rgba(255,255,255,0.02)]"
                       style={{ borderBottom: '1px solid var(--border-subtle)' }}
                     >
                       <GridDot tier={pc.gridTier} />
-                      <span className="flex-1 text-[12px] truncate font-medium" style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
+                      <span className="flex-1 text-[12px] truncate font-medium" title={port.name} style={{ fontFamily: 'var(--font-display)', color: 'var(--text-secondary)' }}>
                         {port.name}
                       </span>
                       {port.portStayMinutes > 0 && (
